@@ -1,0 +1,176 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Keuangan Keluarga</title><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#1f4e8c"><link rel="icon" href="icon.svg">
+<style>
+*{box-sizing:border-box}body{margin:0;font:15px system-ui,sans-serif;background:var(--bg);color:var(--tx);padding-bottom:70px;--bg:#f3f5f8;--cd:#fff;--ac:#1f4e8c;--tx:#1d2733;--bd:#dde3ea;--r:8px;--in:#16824a;--out:#c0392b}
+body[data-t="1"]{--bg:#fbf5e3;--cd:#fffdf6;--ac:#8b5a2b;--tx:#3b2f20;--bd:#c9b48a;--r:4px;font-family:'Segoe Print','Bradley Hand','Comic Sans MS',cursive;background-image:repeating-linear-gradient(#0000 0 27px,#9cc3e055 27px 28px)}
+body[data-t="2"]{--bg:linear-gradient(135deg,#ffe3ec,#e3f0ff,#e6ffe9);--cd:#ffffffcc;--ac:#e0558a;--tx:#4a3b52;--bd:#f3c5d8;--r:18px;--in:#2a9d6f;--out:#e0556a;background-attachment:fixed}
+body[data-t="2"] .cards .cd:nth-child(4n+1){background:#ffd6e5}body[data-t="2"] .cards .cd:nth-child(4n+2){background:#d6ecff}body[data-t="2"] .cards .cd:nth-child(4n+3){background:#d9f7e0}body[data-t="2"] .cards .cd:nth-child(4n){background:#fff1c9}
+header{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--ac);color:#fff}header button{background:#fff3;color:#fff;border:0}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--cd);border-top:1px solid var(--bd);z-index:5}nav button{flex:1;border:0;background:none;padding:14px 4px;color:var(--tx);font:inherit}nav .on{color:var(--ac);font-weight:700;border-top:3px solid var(--ac)}
+main{max-width:900px;margin:auto;padding:8px}.cd{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:10px;margin:8px 0}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}.cards .cd{margin:0}.cards b{display:block;font-size:17px}
+button,select,input{font:inherit;color:inherit}button{padding:7px 12px;border:1px solid var(--bd);background:var(--cd);border-radius:var(--r);cursor:pointer}.pri{background:var(--ac);color:#fff;border-color:var(--ac)}.dng{color:var(--out)}.sm{padding:4px 8px}
+input,select{width:100%;padding:8px;border:1px solid var(--bd);border-radius:var(--r);background:#fff9;margin:3px 0}label{display:block;margin:6px 0;font-size:13px}.row{display:flex;gap:6px;margin-top:8px}.row>*{flex:1}
+.pn{display:flex;gap:6px;align-items:center;margin:6px 0}.pn span{flex:1;text-align:center;font-weight:600}.pn select{width:auto}
+.rw{display:flex;justify-content:space-between;gap:8px;padding:8px 6px;border-bottom:1px solid var(--bd);cursor:pointer}.rw small{display:block;opacity:.7;font-size:12px}.rw.in span{color:var(--in)}.rw.out span{color:var(--out)}.rw span{white-space:nowrap;font-weight:600}
+.tr{display:flex;justify-content:space-between;align-items:center;padding:5px 2px;border-bottom:1px dotted var(--bd)}.tot{font-weight:700;border-top:2px solid var(--tx)}.tr button{padding:2px 6px;margin-left:3px}
+.fab{position:fixed;right:16px;bottom:76px;width:56px;height:56px;border-radius:50%;background:var(--ac);color:#fff;font-size:28px;border:0;z-index:6;box-shadow:0 3px 8px #0004}
+.ov{position:fixed;inset:0;background:#0007;z-index:20;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:10px}.md{background:var(--cd);color:var(--tx);border-radius:var(--r);padding:14px;width:100%;max-width:520px}
+.tabs{display:flex;gap:4px}.tabs button{flex:1}.tabs .on{background:var(--ac);color:#fff}.pk select{display:block}.sc{overflow-x:auto}svg text{fill:currentColor}.b.in{fill:var(--in)}.b.out{fill:var(--out)}.b.net{fill:var(--ac)}
+.bar{height:8px;background:var(--bd);border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--in)}.bar i.ov2{background:var(--out)}.lg{max-width:360px;margin:12vh auto;padding:16px}.er{color:var(--out)}.mt{opacity:.6;text-align:center}details{margin:8px 0}summary{font-weight:700;cursor:pointer;padding:8px;background:var(--cd);border:1px solid var(--bd);border-radius:var(--r)}
+@media(min-width:700px){nav{position:static}body{padding-bottom:20px}.fab{bottom:20px}}
+</style></head><body><div id="app"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const FB = {
+  apiKey: "AIzaSyB-_61gfIXUF2fdT9cu6DNWr1Za8deROm0",
+  authDomain: "pengelolaan-keuangan-keluarga.firebaseapp.com",
+  projectId: "pengelolaan-keuangan-keluarga",
+  storageBucket: "pengelolaan-keuangan-keluarga.firebasestorage.app",
+  messagingSenderId: "105255482155",
+  appId: "1:105255482155:web:e0ac0ecb8b5a6fd94acb6e",
+  measurementId: "G-FYS3NY3W35"
+};
+const SUPER="ryan.trisyardi@gmail.com";
+let au,fs,user,fid,famName='',role='',R=new Map(),unsub,idb,view='home',hm='bar';
+const today=()=>fd(new Date()),fd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+let st={mode:'day',cur:today(),q:''},hs={mode:'month',cur:today()};
+const $=s=>document.querySelector(s),e=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const can=()=>role&&role!='viewer',adm=()=>role=='admin'||role=='super';
+// ---------- IndexedDB ----------
+const idbo=()=>new Promise((ok,no)=>{const r=indexedDB.open('kk',1);r.onupgradeneeded=()=>{r.result.createObjectStore('r',{keyPath:'k'});r.result.createObjectStore('m')};r.onsuccess=()=>ok(r.result);r.onerror=no});
+const tx=(s,m,f)=>new Promise((ok,no)=>{const t=idb.transaction(s,m),q=f(t.objectStore(s));t.oncomplete=()=>ok(q&&q.result);t.onerror=no});
+async function load(){R=new Map();for(const x of await tx('r','readonly',o=>o.getAll()))if(x.f===fid)R.set(x.id,x)}
+async function save(x){x.ts=Date.now();x.dirty=1;x.f=fid;x.k=fid+'|'+x.id;R.set(x.id,x);await tx('r','readwrite',o=>o.put(x));render();sync()}
+const del=x=>save({...x,del:1});
+// ---------- Sync ----------
+async function sync(){if(!navigator.onLine||!fid||!fs)return setSt();for(const x of [...R.values()].filter(x=>x.dirty)){const{dirty,k,...d}=x;try{await fs.collection('families').doc(fid).collection('r').doc(x.id).set(d);if(x.ts==d.ts){x.dirty=0;await tx('r','readwrite',o=>o.put(x))}}catch(er){console.warn(er);break}}setSt()}
+function listen(){unsub&&unsub();unsub=fs.collection('families').doc(fid).collection('r').onSnapshot(async s=>{for(const c of s.docChanges()){const d=c.doc.data(),l=R.get(d.id);if(l&&(l.dirty||l.ts>=d.ts))continue;const x={...d,k:fid+'|'+d.id,dirty:0,f:fid};R.set(x.id,x);await tx('r','readwrite',o=>o.put(x))}render(1)},er=>console.warn(er))}
+function setSt(){const b=$('#sy');if(!b)return;const n=[...R.values()].filter(x=>x.dirty).length;b.textContent=(navigator.onLine?'🟢 Online':'🔴 Offline')+(n?' · '+n+' belum sinkron':' · tersinkron')+' ⟳ Sync'}
+// ---------- Auth / keluarga ----------
+async function ctx(u){const ud=fs.collection('users').doc(u.uid),d=await ud.get();let f,fresh;
+ if(!d.exists){const iv=await fs.collection('invites').doc(u.email.toLowerCase()).get();
+  if(iv.exists){f=iv.data().fid;await fs.collection('families').doc(f).update({['members.'+u.uid]:{email:u.email,role:iv.data().role}});await ud.set({fid:f,email:u.email})}
+  else{f=uid();fresh=1;await fs.collection('families').doc(f).set({name:'Keluarga Saya',owner:u.uid,members:{[u.uid]:{email:u.email,role:'admin'}}});await ud.set({fid:f,email:u.email})}}
+ else f=d.data().fid;
+ const fdoc=(await fs.collection('families').doc(f).get()).data(),m=fdoc.members[u.uid];
+ return{fid:f,famName:fdoc.name,role:u.email==SUPER?'super':m?m.role:'viewer',fresh}}
+async function boot(){idb=await idbo();firebase.initializeApp(FB);au=firebase.auth();fs=firebase.firestore();render();
+ au.onAuthStateChanged(async u=>{user=u;if(!u){fid=null;return render()}
+  let c=await tx('m','readonly',o=>o.get('ctx_'+u.uid)),fr;
+  if(navigator.onLine){try{c=await ctx(u);fr=c.fresh;delete c.fresh;await tx('m','readwrite',o=>o.put(c,'ctx_'+u.uid))}catch(er){console.warn(er)}}
+  if(!c)return render();({fid,famName,role}=c);await load();listen();if(fr)await seed();sync();render()})}
+async function seed(){for(const[t,k,n]of[['acc','A','Kas'],['acc','A','Bank'],['acc','A','Kendaraan'],['acc','L','Utang'],['cat','I','Gaji'],['cat','E','Makan'],['cat','E','Transportasi'],['cat','E','Tagihan']])await save({id:uid(),t,kind:k,n,p:'',open:0})}
+const loginH=()=>`<div class=lg><h2>💰 Keuangan Keluarga</h2><input id=em type=email placeholder=Email><input id=pw type=password placeholder=Password><p id=er class=er></p><div class=row><button class=pri onclick="lg(0)">Masuk</button><button onclick="lg(1)">Daftar (keluarga baru)</button></div></div>`;
+async function lg(n){try{const a=$('#em').value.trim(),p=$('#pw').value;await(n?au.createUserWithEmailAndPassword(a,p):au.signInWithEmailAndPassword(a,p))}catch(x){$('#er').textContent=x.message}}
+// ---------- Helper data ----------
+const pf=()=>({sym:'Rp',dec:0,fmt:'id',start:1,theme:3,...(R.get('pref')||{})});
+function fm(n){const p=pf(),[T,D]=p.fmt=='en'?[',','.']:['.',','];let s=Math.abs(n).toFixed(p.dec).split('.');s[0]=s[0].replace(/\B(?=(\d{3})+(?!\d))/g,T);return(n<0?'-':'')+p.sym+' '+s.join(D)}
+const L=t=>[...R.values()].filter(x=>x.t===t&&!x.del),kids=(t,p,k)=>L(t).filter(x=>(x.p||'')===(p||'')&&(!k||x.kind===k)).sort((a,b)=>a.n.localeCompare(b.n));
+const path=id=>{const o=[];let x=R.get(id);while(x){o.unshift(x.n);x=x.p&&R.get(x.p)}return o.join(' › ')};
+const desc=(t,id)=>[id,...L(t).filter(x=>x.p===id).flatMap(c=>desc(t,c.id))];
+const root=id=>{let x=R.get(id);while(x&&x.p&&R.get(x.p))x=R.get(x.p);return x?x.id:id};
+const eff=x=>x.type=='in'?[[x.acc,x.amt]]:x.type=='out'?[[x.acc,-x.amt]]:[[x.acc,-x.amt-(x.fee||0)],[x.to,x.amt]];
+function bal(id){const ids=new Set(desc('acc',id));let s=0;for(const a of ids)s+=R.get(a).open||0;for(const x of L('tx'))for(const[a,v]of eff(x))if(ids.has(a))s+=v;return s}
+const tk=k=>kids('acc','',k).reduce((s,c)=>s+bal(c.id),0)*(k=='L'?-1:1);
+function rng(o){const c=new Date(o.cur+'T00:00'),y=c.getFullYear(),f=d=>d.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+ if(o.mode=='day')return[o.cur,o.cur,c.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'})];
+ if(o.mode=='year')return[y+'-01-01',y+'-12-31',''+y];
+ const s=+pf().start;let M=c.getMonth();if(c.getDate()<s)M--;const a=new Date(y,M,s),b=new Date(y,M+1,s-1);return[fd(a),fd(b),f(a)+' – '+f(b)+' '+b.getFullYear()]}
+function mv(o,d){const[a,b]=rng(o),c=new Date(o.cur+'T00:00');if(o.mode=='day')c.setDate(c.getDate()+d);else if(o.mode=='year')c.setFullYear(c.getFullYear()+d);else{const t=new Date((d<0?a:b)+'T00:00');t.setDate(t.getDate()+d);c.setTime(t)}o.cur=fd(c);render()}
+const navH=(o,n)=>`<div class=pn><button onclick="mv(${n},-1)">‹</button><span>${rng(o)[2]}</span><button onclick="mv(${n},1)">›</button><select onchange="${n}.mode=this.value;${n}.cur=today();render()">${[['day','Harian'],['month','Bulanan'],['year','Tahunan']].map(([k,l])=>`<option value=${k} ${o.mode==k?'selected':''}>${l}</option>`).join('')}</select></div>`;
+function stats(a,b){let inc=0,out=0,by={};for(const x of L('tx')){if(x.date<a||x.date>b)continue;if(x.type=='in')inc+=x.amt;if(x.type=='out'){out+=x.amt;for(const i of x.items){const r=root(i.cat);by[r]=(by[r]||0)+i.amt}}if(x.type=='tf'&&x.fee){out+=x.fee;by.fee=(by.fee||0)+x.fee}}return{inc,out,by}}
+// ---------- Picker bertingkat ----------
+function picker(t,kind,val,cb){const w=document.createElement('div');w.className='pk';let ps=[];if(val){let x=R.get(val);while(x){ps.unshift(x.id);x=x.p&&R.get(x.p)}}
+ w.value=()=>ps[ps.length-1]||'';
+ const draw=()=>{w.innerHTML='';let par='';for(let i=0;i<=ps.length;i++){const ks=kids(t,par,i?null:kind);if(!ks.length)break;const s=document.createElement('select');s.innerHTML='<option value="">'+(i?'(di sini)':'— pilih —')+'</option>'+ks.map(k=>`<option value="${k.id}"${k.id===ps[i]?' selected':''}>${e(k.n)}</option>`).join('');s.onchange=()=>{ps=ps.slice(0,i);if(s.value)ps.push(s.value);draw();cb&&cb()};w.append(s);par=ps[i];if(!par)break}};
+ draw();return w}
+function modal(){const d=document.createElement('div');d.className='ov';const m=document.createElement('div');m.className='md';d.append(m);d.onclick=ev=>{if(ev.target==d)d.remove()};document.body.append(d);m.close=()=>d.remove();return m}
+// ---------- Form transaksi ----------
+function txForm(old){const x=old?{...old}:{type:'out',date:today(),items:[{}]},M=modal();let pa,pb,rw=[];
+ const q=s=>M.querySelector(s);
+ const grab=()=>{x.date=q('#fd').value;x.note=q('#fn').value;x.acc=pa.value();if(pb)x.to=pb.value();if(x.type=='tf'){x.amt=+q('#fa').value;x.fee=+q('#ff').value}else x.items=rw.map(r=>({cat:r.p.value(),amt:+r.a.value||0}))};
+ const draw=()=>{const ty=x.type;M.innerHTML=`<h3>${old?'Edit':'Input'} transaksi</h3><div class=tabs>${[['in','Revenue'],['out','Expense'],['tf','Transfer']].map(([k,l])=>`<button data-ty=${k} class="${k==ty?'on':''}">${l}</button>`).join('')}</div>
+ <label>Tanggal<input type=date id=fd value="${x.date}"></label>
+ <label>${ty=='in'?'Masuk ke aset':ty=='out'?'Dibayar dari aset':'Dari aset / liabilitas'}<span id=pa></span></label>${ty=='tf'?'<label>Ke aset / liabilitas<span id=pb></span></label>':''}
+ ${ty=='tf'?`<label>Jumlah<input id=fa type=number step=any value="${x.amt||''}"></label><label>Biaya transfer / admin<input id=ff type=number step=any value="${x.fee||''}"></label>`:`<label>Kategori ${ty=='in'?'penerimaan':'pengeluaran'}</label><div id=it></div><button id=ad class=sm>+ Tambah kategori</button> <b id=tt></b>`}
+ <label>Catatan<input id=fn list=nl value="${e(x.note)}" autocomplete=off></label><datalist id=nl>${[...new Set(L('tx').map(t=>t.note).filter(Boolean))].slice(-300).map(n=>`<option value="${e(n)}">`).join('')}</datalist>
+ <div class=row><button id=sv class=pri>Simpan</button>${old?'<button id=dl class=dng>Hapus</button>':''}<button id=cx>Batal</button></div>`;
+  pa=picker('acc',ty=='tf'?null:'A',x.acc);q('#pa').append(pa);pb=null;if(ty=='tf'){pb=picker('acc',null,x.to);q('#pb').append(pb)}
+  rw=[];if(ty!='tf'){const tot=()=>q('#tt').textContent='Total: '+fm(rw.reduce((s,r)=>s+(+r.a.value||0),0));
+   const add=it=>{const d=document.createElement('div');d.className='cd';const r={p:picker('cat',ty=='in'?'I':'E',it.cat),a:document.createElement('input')};r.a.type='number';r.a.step='any';r.a.placeholder='Jumlah';r.a.value=it.amt||'';r.a.oninput=tot;const b=document.createElement('button');b.textContent='✕ hapus baris';b.className='sm';b.onclick=()=>{rw=rw.filter(z=>z!==r);d.remove();tot()};d.append(r.p,r.a,b);q('#it').append(d);rw.push(r)};
+   (x.items&&x.items.length?x.items:[{}]).forEach(add);q('#ad').onclick=()=>add({});tot()}
+  M.querySelectorAll('[data-ty]').forEach(b=>b.onclick=()=>{grab();if((b.dataset.ty=='in')!=(x.type=='in'))x.items=[{}];x.type=b.dataset.ty;draw()});
+  q('#cx').onclick=M.close;
+  q('#sv').onclick=()=>{grab();if(!x.acc)return alert('Pilih aset/akun');const d={...x,t:'tx',id:x.id||uid()};
+   if(d.type=='tf'){if(!d.to||d.to==d.acc||!d.amt)return alert('Lengkapi akun tujuan dan jumlah');d.items=[];d.fee=d.fee||0}
+   else{d.items=d.items.filter(i=>i.cat&&i.amt);if(!d.items.length)return alert('Isi kategori dan jumlah');d.amt=d.items.reduce((s,i)=>s+i.amt,0);delete d.to;delete d.fee}
+   save(d);M.close()};
+  if(old)q('#dl').onclick=()=>{if(confirm('Hapus transaksi ini?')){del(old);M.close()}}};
+ draw()}
+const ed=id=>can()&&txForm(R.get(id));
+// ---------- Tampilan ----------
+const short=v=>v>=1e6?(v/1e6).toFixed(1)+'jt':v>=1e3?Math.round(v/1e3)+'rb':Math.round(v);
+function chart(it){const W=Math.max(320,it.length*64),H=210,mx=Math.max(...it.map(i=>i.hi),1),mn=Math.min(...it.map(i=>i.lo),0),y=v=>10+(mx-v)/((mx-mn)||1)*(H-60);
+ return`<div class=sc><svg width=${W} height=${H} viewBox="0 0 ${W} ${H}">${it.map((i,k)=>{const x=k*64+10,t=y(i.hi),h=Math.max(2,y(i.lo)-t);return`<rect class="b ${i.c||'out'}" x=${x} y=${t} width=44 height=${h} rx=3></rect><text x=${x+22} y=${H-34} text-anchor=middle font-size=10>${e(i.n.slice(0,9))}</text><text x=${x+22} y=${H-20} text-anchor=middle font-size=9>${short(i.hi-i.lo)}</text>`}).join('')}</svg></div>`}
+function vHome(){const[a,b]=rng(hs),s=stats(a,b),A=tk('A'),Li=tk('L');
+ const by=Object.entries(s.by).sort((p,q)=>q[1]-p[1]).slice(0,8).map(([k,v])=>({n:k=='fee'?'Adm transfer':R.get(k).n,v})),rest=s.out-by.reduce((t,x)=>t+x.v,0);if(rest>0.5)by.push({n:'Lainnya',v:rest});
+ let it;if(hm=='wf'){let r=s.inc;it=[{n:'Masuk',lo:0,hi:s.inc,c:'in'}];by.forEach(x=>{it.push({n:x.n,lo:r-x.v,hi:r});r-=x.v});it.push({n:'Sisa',lo:Math.min(0,r),hi:Math.max(0,r),c:'net'})}else it=by.map(x=>({n:x.n,lo:0,hi:x.v}));
+ const k=hs.mode=='year'?12:1,bd=L('bud').map(g=>{const ids=new Set(desc('cat',g.cat));let sp=0;for(const x of L('tx'))if(x.type=='out'&&x.date>=a&&x.date<=b)for(const i of x.items)if(ids.has(i.cat))sp+=i.amt;const lim=g.amt*k,pc=lim?sp/lim*100:0;return`<div><div class=tr><span>${e(path(g.cat))}</span><span>${fm(sp)} / ${fm(lim)}</span></div><div class=bar><i class="${pc>100?'ov2':''}" style="width:${Math.min(100,pc)}%"></i></div></div>`}).join('');
+ return navH(hs,'hs')+`<div class=cards><div class=cd>Pemasukan<b style="color:var(--in)">${fm(s.inc)}</b></div><div class=cd>Pengeluaran<b style="color:var(--out)">${fm(s.out)}</b></div><div class=cd>Selisih<b>${fm(s.inc-s.out)}</b></div><div class=cd>Kekayaan bersih<b>${fm(A-Li)}</b></div></div>
+ <div class=cd><div class=tabs><button class="${hm=='bar'?'on':''}" onclick="hm='bar';render()">Batang</button><button class="${hm=='wf'?'on':''}" onclick="hm='wf';render()">Waterfall</button></div>${s.inc||s.out?chart(it):'<p class=mt>Belum ada data periode ini</p>'}</div>
+ <div class=cd><b>Anggaran</b>${bd||'<p class=mt>Atur anggaran di Pengaturan</p>'}</div>`}
+const txt=x=>[x.date,x.note,x.amt,path(x.acc),x.to&&path(x.to),...(x.items||[]).map(i=>path(i.cat)+' '+i.amt)].join(' ').toLowerCase();
+const row=x=>{const tf=x.type=='tf',c=tf?'':x.items.map(i=>path(i.cat)).join(', ');return`<div class="rw ${x.type}" onclick="ed('${x.id}')"><div><b>${e(x.note||c||'Transfer')}</b><small>${x.date} · ${e(tf?path(x.acc)+' → '+path(x.to):path(x.acc))}${c&&x.note?' · '+e(c):''}${x.fee?' · admin '+fm(x.fee):''}</small></div><span>${x.type=='out'?'-':x.type=='in'?'+':''}${fm(x.amt)}</span></div>`};
+const vList=()=>navH(st,'st')+`<input id=sq placeholder="🔍 Cari catatan, kategori, akun, tanggal, jumlah…" value="${e(st.q)}" oninput="st.q=this.value;fl()"><div class=cd id=lst></div>`;
+function fl(){const q=st.q.trim().toLowerCase(),[a,b]=rng(st),xs=L('tx').filter(x=>q?txt(x).includes(q):x.date>=a&&x.date<=b).sort((p,r)=>r.date.localeCompare(p.date)||r.ts-p.ts);$('#lst').innerHTML=xs.length?xs.map(row).join(''):'<p class=mt>Tidak ada transaksi</p>'}
+const tree=(id,d)=>{const a=R.get(id);return`<div class=tr style="padding-left:${d*14}px"><span>${e(a.n)}</span><b>${fm(bal(id)*(a.kind=='L'?-1:1))}</b></div>`+kids('acc',id).map(c=>tree(c.id,d+1)).join('')};
+const vBS=()=>`<div class=cd><h4>Aset</h4>${kids('acc','','A').map(n=>tree(n.id,0)).join('')}<div class="tr tot"><span>Total Aset</span><b>${fm(tk('A'))}</b></div></div><div class=cd><h4>Liabilitas</h4>${kids('acc','','L').map(n=>tree(n.id,0)).join('')}<div class="tr tot"><span>Total Liabilitas</span><b>${fm(tk('L'))}</b></div></div><div class="cd tot"><div class=tr><span>Ekuitas (Aset − Liabilitas)</span><b>${fm(tk('A')-tk('L'))}</b></div></div><p class=mt>Tambah/kurangi liabilitas: gunakan Transfer (aset → liabilitas = bayar utang; liabilitas → aset = utang bertambah).</p>`;
+// ---------- Pengaturan ----------
+const sp=(k,v)=>save({...(R.get('pref')||{id:'pref',t:'pref'}),[k]:v}),opt=(l,s)=>l.map(([v,n])=>`<option value="${v}" ${v==s?'selected':''}>${n}</option>`).join('');
+function ted(t,kind){const r=(p,d)=>kids(t,p,p?null:kind).map(n=>`<div class=tr style="padding-left:${d*14}px"><span>${e(n.n)}${t=='acc'&&n.open?` <small>(awal ${fm(n.kind=='L'?-n.open:n.open)})</small>`:''}</span><span><button onclick="tn('${t}','${kind}','${n.id}')">＋</button><button onclick="te('${n.id}')">✎</button><button onclick="td('${n.id}')">🗑</button></span></div>`+r(n.id,d+1)).join('');return r('',0)+`<button class=sm onclick="tn('${t}','${kind}','')">+ Tambah induk</button>`}
+function tn(t,kind,p){const n=prompt('Nama '+(t=='acc'?'akun':'kategori'));if(!n)return;const o={id:uid(),t,kind,p,n};if(t=='acc'){const v=+prompt('Saldo awal'+(kind=='L'?' (jumlah utang)':''),'0')||0;o.open=kind=='L'?-v:v}save(o)}
+function te(id){const o=R.get(id),n=prompt('Nama',o.n);if(!n)return;const d={...o,n};if(o.t=='acc'){const v=+prompt('Saldo awal',o.kind=='L'?-(o.open||0):o.open||0)||0;d.open=o.kind=='L'?-v:v}save(d)}
+function td(id){const o=R.get(id);if(L(o.t).some(x=>x.p===id)||L('tx').some(x=>x.acc==id||x.to==id||(x.items||[]).some(i=>i.cat==id)))return alert('Tidak bisa dihapus: punya sub atau sudah dipakai transaksi.');if(confirm('Hapus '+o.n+'?'))del(o)}
+function bn(){const M=modal(),p=picker('cat','E','');M.innerHTML='<h3>Anggaran per periode</h3><label>Kategori</label><div id=bp></div><label>Jumlah<input id=ba type=number></label><div class=row><button class=pri id=bs>Simpan</button><button id=bc>Batal</button></div>';M.querySelector('#bp').append(p);M.querySelector('#bc').onclick=M.close;M.querySelector('#bs').onclick=()=>{const a=+M.querySelector('#ba').value;if(!p.value()||!a)return;save({id:uid(),t:'bud',cat:p.value(),amt:a});M.close()}}
+function vSet(){const p=pf(),A=adm();return`<details open><summary>Preferensi</summary><div class=cd>
+ <label>Nama keluarga<input value="${e(p.name||famName)}" onchange="sp('name',this.value)" ${A?'':'disabled'}></label>
+ <label>Simbol uang (Rp, IDR, $ …)<input value="${e(p.sym)}" onchange="sp('sym',this.value)" ${A?'':'disabled'}></label>
+ <label>Format angka<select onchange="sp('fmt',this.value)">${opt([['id','1.234,56'],['en','1,234.56']],p.fmt)}</select></label>
+ <label>Desimal<select onchange="sp('dec',+this.value)">${opt([[0,'0'],[2,'2']],p.dec)}</select></label>
+ <label>Tanggal mulai periode bulanan (1–28; mis. 25 = 25 bln ini s.d. 24 bln depan)<input type=number min=1 max=28 value="${p.start}" onchange="sp('start',Math.min(28,Math.max(1,+this.value||1)))" ${A?'':'disabled'}></label>
+ <label>Tema<select onchange="sp('theme',+this.value)">${opt([[1,'Buku catatan'],[2,'Pastel full color'],[3,'Profesional sederhana']],p.theme)}</select></label></div></details>
+ ${A?`<details><summary>Aset</summary><div class=cd>${ted('acc','A')}</div></details><details><summary>Liabilitas</summary><div class=cd>${ted('acc','L')}</div></details>
+ <details><summary>Kategori Penerimaan</summary><div class=cd>${ted('cat','I')}</div></details><details><summary>Kategori Pengeluaran</summary><div class=cd>${ted('cat','E')}</div></details>
+ <details><summary>Anggaran</summary><div class=cd>${L('bud').map(g=>`<div class=tr><span>${e(path(g.cat))}</span><span><input style="width:110px" type=number value="${g.amt}" onchange="save({...R.get('${g.id}'),amt:+this.value})"><button onclick="del(R.get('${g.id}'))">🗑</button></span></div>`).join('')}<button class=sm onclick="bn()">+ Anggaran</button></div></details>`:''}
+ <details><summary>Backup & Database</summary><div class=cd><div class=row><button onclick="exJ()">Export JSON</button><button onclick="exX()">Export Excel</button></div><label>Import database (JSON)<input type=file accept=".json" onchange="imJ(this.files[0])" ${can()?'':'disabled'}></label></div></details>
+ ${A?'<details><summary>Pengguna keluarga</summary><div class=cd id=usr>…</div></details>':''}${role=='super'?'<details><summary>Superadmin: semua keluarga</summary><div class=cd id=sup>…</div></details>':''}
+ <p><button onclick="au.signOut()">Keluar (${e(user.email)})</button></p>`}
+async function loadUsr(){const el=$('#usr');if(!el)return;if(!navigator.onLine)return el.textContent='Perlu koneksi online.';const ms=(await fs.collection('families').doc(fid).get()).data().members;el.innerHTML=Object.entries(ms).map(([u,m])=>`<div class=tr><span>${e(m.email)}</span>${u!=user.uid?`<span><select style="width:auto" onchange="mr('${u}',this.value)">${opt(['admin','editor','viewer'].map(r=>[r,r]),m.role)}</select><button onclick="mx('${u}')">🗑</button></span>`:'<small>Anda</small>'}</div>`).join('')+`<div class=row><input id=ie type=email placeholder="email anggota (belum terdaftar)"><select id=ir>${opt(['editor','viewer','admin'].map(r=>[r,r]),'editor')}</select><button class=sm onclick="inv()">Undang</button></div>`}
+const fdoc=()=>fs.collection('families').doc(fid);
+async function mr(u,r){await fdoc().update({['members.'+u+'.role']:r})}
+async function mx(u){if(!confirm('Hapus anggota ini?'))return;await fdoc().update({['members.'+u]:firebase.firestore.FieldValue.delete()});await fs.collection('users').doc(u).delete();loadUsr()}
+async function inv(){const m=$('#ie').value.trim().toLowerCase();if(!m)return;await fs.collection('invites').doc(m).set({fid,role:$('#ir').value});alert('Undangan dibuat. Minta '+m+' mendaftar (Daftar) dengan email tsb, ia otomatis masuk ke keluarga ini.')}
+async function loadSup(){const el=$('#sup');if(!el)return;try{const s=await fs.collection('families').get();el.innerHTML=s.docs.map(d=>{const f=d.data();return`<div class=tr><span>${e(f.name)} <small>${Object.values(f.members||{}).map(m=>e(m.email)).join(', ')}</small></span><button onclick="sw('${d.id}')">Buka</button></div>`}).join('')}catch(er){el.textContent=er.message}}
+async function sw(id){fid=id;famName='';role='super';await load();listen();render()}
+// ---------- Backup ----------
+const dl=(n,b)=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click()};
+const exJ=()=>dl('keuangan-'+today()+'.json',new Blob([JSON.stringify([...R.values()].map(({k,dirty,...x})=>x))],{type:'application/json'}));
+function exX(){const wb=XLSX.utils.book_new(),A=(n,r)=>XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(r),n);
+ A('Transaksi',L('tx').sort((a,b)=>a.date.localeCompare(b.date)).flatMap(x=>x.type=='tf'?[{Tanggal:x.date,Jenis:'Transfer',Akun:path(x.acc),Ke:path(x.to),Kategori:'',Jumlah:x.amt,Biaya:x.fee||0,Catatan:x.note}]:x.items.map(i=>({Tanggal:x.date,Jenis:x.type=='in'?'Revenue':'Expense',Akun:path(x.acc),Ke:'',Kategori:path(i.cat),Jumlah:i.amt,Biaya:0,Catatan:x.note}))));
+ A('Akun',L('acc').map(a=>({Akun:path(a.id),Jenis:a.kind=='A'?'Aset':'Liabilitas',SaldoAwal:a.kind=='L'?-(a.open||0):a.open||0,Saldo:bal(a.id)*(a.kind=='L'?-1:1)})));
+ A('Kategori',L('cat').map(c=>({Kategori:path(c.id),Jenis:c.kind=='I'?'Revenue':'Expense'})));A('Anggaran',L('bud').map(b=>({Kategori:path(b.cat),Anggaran:b.amt})));XLSX.writeFile(wb,'keuangan-'+today()+'.xlsx')}
+function imJ(f){if(!f)return;const r=new FileReader();r.onload=async()=>{try{const a=JSON.parse(r.result);if(!Array.isArray(a)||!confirm('Impor '+a.length+' data? (menimpa data dengan id sama)'))return;for(const x of a)if(x.id&&x.t){x.f=fid;x.k=fid+'|'+x.id;x.ts=Date.now();x.dirty=1;R.set(x.id,x);await tx('r','readwrite',o=>o.put(x))}render();sync()}catch{alert('File tidak valid')}};r.readAsText(f)}
+// ---------- Render ----------
+function render(soft){const a=document.activeElement;if(soft&&a&&/INPUT|SELECT/.test(a.tagName)&&a.closest('#app'))return;
+ const th=fid?pf().theme:localStorage.th||3;localStorage.th=th;document.body.dataset.t=th;const A=$('#app');
+ if(!user)return A.innerHTML=loginH();
+ if(!fid)return A.innerHTML='<p class=mt>Memuat… (login pertama butuh internet)</p><p class=mt><button onclick="au.signOut()">Keluar</button></p>';
+ A.innerHTML=`<header><b>${e(pf().name||famName||'Keuangan Keluarga')}</b><button id=sy onclick="sync()"></button></header><nav>${[['home','Ringkasan'],['list','Transaksi'],['bs','Neraca'],['set','Pengaturan']].map(([k,l])=>`<button class="${view==k?'on':''}" onclick="view='${k}';render()">${l}</button>`).join('')}</nav><main>${{home:vHome,list:vList,bs:vBS,set:vSet}[view]()}</main>${can()?'<button class=fab onclick="txForm()">＋</button>':''}`;
+ setSt();if(view=='list')fl();if(view=='set'){adm()&&loadUsr();role=='super'&&loadSup()}}
+addEventListener('online',()=>{sync();setSt()});addEventListener('offline',setSt);setInterval(sync,60000);
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+boot();
+</script></body></html>
