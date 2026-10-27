@@ -76,6 +76,7 @@ body{--tf:#1f5fbf}body[data-t="1"]{--tf:#2f6db5}body[data-t="2"]{--tf:#6c8cff}
 .dl{display:inline-block;font-size:11.5px;font-weight:800;padding:1px 7px;border-radius:10px;text-align:center;white-space:nowrap}.dl.g{background:#3f8f4f22;color:var(--in)}.dl.b{background:#c8453b22;color:var(--out)}.dl.z{color:var(--mut)}.dd{display:block;font-size:11.5px;font-weight:700}.dd.up{color:var(--in)}.dd.dn{color:var(--out)}
 @media(max-width:560px){.cmpr{grid-template-columns:minmax(0,1fr) 70px 70px 58px;font-size:12.5px}.cmpr .dl{font-size:10.5px;padding:1px 4px}}
 .tabs button{padding:8px 6px}
+.pill{white-space:nowrap}@media(max-width:560px){.tb h1{font-size:19px}.tb>div:first-child small{display:none}}
 /*neg*/.neg{color:var(--out);font-weight:700;background:#c8453b1c;padding:1px 7px;border-radius:7px;white-space:nowrap}#fbar{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}#fbar>*{flex:1 1 140px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0}a.lnk{display:inline-flex;gap:8px;align-items:center;justify-content:center;padding:8px 14px;border-radius:10px;border:var(--bb);font-weight:600;text-decoration:none;color:inherit;background:var(--cd)}a.lnk.pri{background:var(--ac);color:#fff;border-color:var(--ac)}.sbf a{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none;padding:11px 12px;border-radius:10px;font-weight:600}.sbf a:hover{background:#ffffff22}
 </style></head><body>
 <svg style="position:absolute;width:0;height:0"><filter id="cr"><feTurbulence baseFrequency=".06" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter></svg>
@@ -85,7 +86,7 @@ body{--tf:#1f5fbf}body[data-t="1"]{--tf:#2f6db5}body[data-t="2"]{--tf:#6c8cff}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-const FB={apiKey:"AIzaSyB-_61gfIXUF2fdT9cu6DNWr1Za8deROm0",authDomain:"pengelolaan-keuangan-keluarga.firebaseapp.com",projectId:"pengelolaan-keuangan-keluarga",storageBucket:"pengelolaan-keuangan-keluarga.firebasestorage.app",messagingSenderId:"105255482155",appId:"1:105255482155:web:e0ac0ecb8b5a6fd94acb6e"};
+const FB={apiKey:"AIzaSyB-_61gfIXUF2fdT9cu6DNWr1Za8deROm0",authDomain:"pengelolaan-keuangan-keluarga.firebaseapp.com",projectId:"pengelolaan-keuangan-keluarga",storageBucket:"pengelolaan-keuangan-keluarga.firebasestorage.app",messagingSenderId:"105255482155",appId:"1:105255482155:web:e0ac0ecb8b5a6fd94acb6e",databaseURL:"https://pengelolaan-keuangan-keluarga-default-rtdb.asia-southeast1.firebasedatabase.app/"};
 const SUPER="ryan.trisyardi@gmail.com";
 let au,fs,user,fid,famName='',role='',vacc=[],dbs=[],invs=[],scr='load',R=new Map(),unsub,unsubF,idb,view='home',sets='pref',VIS=null,lm='in',justLogin=0,OV={},M=null;
 let hm='bar';const ox=new Set(),mk={acc:'A',cat:'E'};
@@ -104,7 +105,7 @@ function errm(x){const c=x.code||'';return /invalid-credential|wrong-password|us
 const idbo=()=>new Promise((ok,no)=>{const r=indexedDB.open('kk',1);r.onupgradeneeded=()=>{r.result.createObjectStore('r',{keyPath:'k'});r.result.createObjectStore('m')};r.onsuccess=()=>ok(r.result);r.onerror=no});
 const tx=(s,m,f)=>new Promise((ok,no)=>{const t=idb.transaction(s,m),q=f(t.objectStore(s));t.oncomplete=()=>ok(q&&q.result);t.onerror=no});
 async function load(){R=new Map();for(const x of await tx('r','readonly',o=>o.getAll()))if(x.f===fid)R.set(x.id,x)}
-async function save(x){if(!R.has(x.id)&&!x.base)x.nw=1;x.ts=Date.now();x.dirty=1;x.f=fid;x.k=fid+'|'+x.id;R.set(x.id,x);await tx('r','readwrite',o=>o.put(x));render();sync()}
+async function save(x){const p=R.get(x.id);if(p&&!x.nw&&!p.nw&&same(strip(p),strip(x)))return;if(!R.has(x.id)&&!x.base)x.nw=1;x.ts=Date.now();x.dirty=1;x.f=fid;x.k=fid+'|'+x.id;R.set(x.id,x);await tx('r','readwrite',o=>o.put(x));render();qSync()}
 const del=x=>save({...x,del:1});
 // ---------- Sync ----------
 const fdoc=()=>fs.collection('families').doc(fid);
@@ -113,8 +114,8 @@ const J=JSON.stringify,LOCALF=['dirty','k','base','nw','bk','f','st','rev'];
 const strip=x=>{const o={};for(const f in x)if(!LOCALF.includes(f))o[f]=x[f];return o};
 const same=(a,b)=>{for(const f of new Set([...Object.keys(a),...Object.keys(b)])){if(f=='ts')continue;if(J(a[f])!==J(b[f]))return false}return true};
 const bkey=x=>x.t=='tx'?'tx_'+String(x.date||today()).slice(0,7)+'_'+(parseInt(hsh(x.id),36)%2):'c_'+x.t;
-let SCH=0,syncing=0,redo=0,syncErr='',lastET=0,dataOn=0,migrating=0,unsubP,PR=new Map(),lastHb=0;
-function sErr(er){console.warn(er);syncErr=er.code||er.message||'error';if(Date.now()-lastET>30000){lastET=Date.now();toast('Gagal kirim ke server: '+syncErr)}}
+let SCH=0,syncing=0,redo=0,syncErr='',lastET=0,migrating=0,PR=new Map();
+function sErr(er){console.warn(er);if(quotaCheck(er)){syncErr='kuota habis';return}syncErr=er.code||er.message||'error';if(Date.now()-lastET>30000){lastET=Date.now();toast('Gagal kirim ke server: '+syncErr)}}
 async function pushB(key,list){const ref=fdoc().collection('b').doc(key);
  return fs.runTransaction(async t=>{const s=await t.get(ref),rem=s.exists?(s.data().recs||{}):{},put={},out={};
   for(const x of list){const loc=strip(x),b=x.base?strip(x.base):{},rs=rem[x.id];let o;
@@ -122,46 +123,68 @@ async function pushB(key,list){const ref=fdoc().collection('b').doc(key);
    put[x.id]=J(o);out[x.id]=o}
   t.set(ref,{recs:put,st:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});return out})}
 async function done(x,m,key){const c=R.get(x.id);if(!c)return;if(c.ts==x.ts&&c.dirty)R.set(x.id,{...m,k:fid+'|'+x.id,f:fid,bk:key,base:m,dirty:0});else{c.base=m;c.bk=key;delete c.nw}await tx('r','readwrite',o=>o.put(R.get(x.id)))}
-async function sync(){if(syncing){redo=1;return}if(!navigator.onLine||!fid||!fs||!can()||SCH<2)return setSt();syncing=1;let fail=0;
+async function sync(){if(syncing){redo=1;return}if(!navigator.onLine||!fid||!fs||!can()||SCH<2||qOff())return setSt();syncing=1;let fail=0,pushed=0;
  try{const G=new Map();[...R.values()].filter(x=>x.dirty).forEach(x=>{x.bk=x.bk||bkey(x);(G.get(x.bk)||G.set(x.bk,[]).get(x.bk)).push(x)});
-  for(const[key,list]of G){for(let i=0;i<list.length;i+=200){const part=list.slice(i,i+200);let out;try{out=await pushB(key,part);usage('r',1);usage('w',1)}catch(er){sErr(er);fail=1;break}for(const x of part)await done(x,out[x.id],key)}if(fail)break}
-  if(!fail)syncErr=''}finally{syncing=0}setSt();if(redo&&!fail){redo=0;sync()}else redo=0}
+  for(const[key,list]of G){for(let i=0;i<list.length;i+=200){const part=list.slice(i,i+200);let out;try{out=await pushB(key,part);usage('r',2);usage('w',1);pushed=1}catch(er){sErr(er);fail=1;break}for(const x of part)await done(x,out[x.id],key)}if(fail)break}
+  if(!fail)syncErr='';if(pushed)sigPush()}finally{syncing=0}setSt();if(redo&&!fail){redo=0;sync()}else redo=0}
 function mergeIn(l,d,key){const b=l?l.base||{}:{},o={...d};if(l&&l.dirty){for(const f of new Set([...Object.keys(l),...Object.keys(b)])){if(LOCALF.includes(f)||f=='ts')continue;if(J(l[f])!==J(b[f])){if(l[f]===undefined)delete o[f];else o[f]=l[f]}}}
  return{...o,k:fid+'|'+d.id,f:fid,bk:(l&&l.bk)||key,dirty:l?l.dirty:0,base:d,ts:l&&l.dirty?l.ts:d.ts}}
 function ingest(key,recs){const ch=[];for(const id in recs){let d;try{d=JSON.parse(recs[id])}catch{continue}const l=R.get(id);
  if(l&&!l.dirty&&same(strip(l),d)){if(!l.bk){l.bk=key;ch.push(l)}continue}if(l&&l.dirty&&l.base&&same(strip(l.base),d))continue;const x=mergeIn(l,d,key);R.set(id,x);ch.push(x)}return ch}
-async function startData(f0){let last=await tx('m','readonly',o=>o.get('st3_'+f0));const lf=await tx('m','readonly',o=>o.get('full3_'+f0)),full=!lf||Date.now()-lf>7*864e5;if(full)last=0;let fdn=0,q=fdoc().collection('b');
- if(last)q=q.where('st','>',firebase.firestore.Timestamp.fromMillis(last-10000)).orderBy('st');
- unsub=q.onSnapshot(async s=>{if(f0!=fid)return;let mx=last||0;const ch=s.docChanges(),all=[];usage('r',ch.length);
-  for(const c of ch){const d=c.doc.data();if(d.st&&d.st.toMillis&&d.st.toMillis()>mx)mx=d.st.toMillis();all.push(...ingest(c.doc.id,d.recs||{}))}
+// ===== Sinkron HEMAT: tarik data berkala (bukan listener realtime), kirim ditunda, sinyal via Realtime Database (opsional) =====
+const smode=()=>localStorage.smode||'hemat',QX=()=>+localStorage.qx||0,qOff=()=>Date.now()<QX();
+let lastPull=0,pulling=0,lastBel=0,lastFam=0,pollT,qT,sigT,rdb=null,sigSeen=0,presOnce=0;
+function nextReset(){const n=new Date(),la=new Date(n.toLocaleString('en-US',{timeZone:'America/Los_Angeles'})),mid=new Date(la);mid.setHours(24,0,0,0);return n.getTime()+(mid-la)+120000}
+function quotaCheck(er){if(er&&(er.code=='resource-exhausted'||/quota/i.test(er.message||''))){if(!qOff())toast('Kuota harian Firestore habis. Data aman di perangkat; sinkron lanjut otomatis setelah kuota diperbarui.');localStorage.qx=nextReset();setSt();return true}return false}
+function qSync(ms){if(smode()=='manual')return;clearTimeout(qT);qT=setTimeout(()=>sync(),ms==null?10000:ms)}
+async function syncNow(){await sync();await pullAll(true);toast(qOff()?'Kuota Firestore habis, coba lagi nanti':syncErr?'Sinkron bermasalah: '+syncErr:'Sinkron selesai')}
+async function pullAll(force){await pull(force);if(role!='viewer'&&(force||view=='bel'))await pullBel(force)}
+async function pull(force){if(pulling||!fid||!fs||SCH<2||!navigator.onLine||qOff())return;if(!force&&Date.now()-lastPull<20000)return;pulling=1;const f0=fid;
+ try{let last=await tx('m','readonly',o=>o.get('st3_'+f0));const lf=await tx('m','readonly',o=>o.get('full3_'+f0)),full=force==='full'||!lf||Date.now()-lf>30*864e5;if(full)last=0;
+  let q=fdoc().collection('b');if(last)q=q.where('st','>',firebase.firestore.Timestamp.fromMillis(last-5000)).orderBy('st');
+  const s=await q.get();if(f0!=fid)return;usage('r',Math.max(1,s.size)+1);const all=[],seen=full?new Set():null;let mx=last||0;
+  for(const d of s.docs){const x=d.data();if(x.st&&x.st.toMillis&&x.st.toMillis()>mx)mx=x.st.toMillis();all.push(...ingest(d.id,x.recs||{}));if(seen)Object.keys(x.recs||{}).forEach(i=>seen.add(i))}
+  if(seen)for(const x of R.values())if(!seen.has(x.id)&&!x.dirty&&x.f==fid){x.dirty=1;x.nw=1;all.push(x)}
   if(all.length)await tx('r','readwrite',o=>{all.forEach(x=>o.put(x))});
-  if(mx&&mx!==last)await tx('m','readwrite',o=>o.put(mx,'st3_'+f0));if(full&&!fdn){fdn=1;await tx('m','readwrite',o=>o.put(Date.now(),'full3_'+f0))}
-  render(1);setSt();sync()},er=>console.warn(er))}
-async function migrate(){try{toast('Meningkatkan database ke format hemat kuota…');const s=await fdoc().collection('r').get();usage('r',s.size);const all=new Map();
- s.docs.forEach(d=>{const{st,rev,f,...x}=d.data();all.set(x.id,x)});for(const x of R.values())if(!x.dirty&&!all.has(x.id))all.set(x.id,strip(x));
- const G=new Map();for(const x of all.values()){const k=bkey(x);(G.get(k)||G.set(k,{}).get(k))[x.id]=J(strip(x))}
- for(const[k,recs]of G){const ref=fdoc().collection('b').doc(k),ids=Object.keys(recs);for(let i=0;i<ids.length;i+=300){const part=ids.slice(i,i+300);
-  await fs.runTransaction(async t=>{const sn=await t.get(ref),rem=sn.exists?(sn.data().recs||{}):{},put={};for(const id of part)if(!rem[id])put[id]=recs[id];if(Object.keys(put).length)t.set(ref,{recs:put,st:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})});usage('r',1);usage('w',1)}}
- await fdoc().update({sch:2});toast('Peningkatan selesai: '+all.size+' catatan dalam '+G.size+' bundel')}catch(er){sErr(er)}}
+  if(mx&&mx!==last)await tx('m','readwrite',o=>o.put(mx,'st3_'+f0));if(full)await tx('m','readwrite',o=>o.put(Date.now(),'full3_'+f0));
+  lastPull=Date.now();localStorage.lpull=lastPull;render(1)}catch(er){sErr(er)}finally{pulling=0}setSt();if([...R.values()].some(x=>x.dirty))qSync(1500)}
+async function pullBel(force){if(!fid||!fs||role=='viewer'||!navigator.onLine||qOff())return;if(!force&&Date.now()-lastBel<60000)return;lastBel=Date.now();const f0=fid,cut=Date.now()-90*864e5;
+ try{const last=await tx('m','readonly',o=>o.get('belst_'+f0));let q=fdoc().collection('belanja');q=last?q.where('st','>',firebase.firestore.Timestamp.fromMillis(last-5000)).orderBy('st'):q.where('ts','>',cut);
+  const s=await q.get();if(f0!=fid)return;usage('r',Math.max(1,s.size)+1);let mx=last||0;s.docs.forEach(c=>{const{st,...d}=c.data();if(st&&st.toMillis&&st.toMillis()>mx)mx=st.toMillis();BEL.set(c.id,d)});for(const[k,d]of BEL)if(d.ts<cut)BEL.delete(k);
+  await tx('m','readwrite',o=>{o.put([...BEL.values()],'bel_'+f0);if(mx&&mx!==last)o.put(mx,'belst_'+f0)});belAuto();render(1)}catch(er){quotaCheck(er)}}
+async function famCheck(f0){if(!navigator.onLine||qOff())return;lastFam=Date.now();
+ try{const s=await fdoc().get();usage('r',2);if(f0!=fid)return;if(!s.exists){toast('Database ini sudah dihapus');return toPick()}const d=s.data(),m=(d.members||{})[user.uid];if(!m&&role!='super'){toast('Anda dikeluarkan dari database ini');return toPick()}if(m&&role!='super'){role=m.role;vacc=m.accs||[]}famName=d.name;SCH=d.sch||1;
+  if(SCH>=2)tx('m','readwrite',o=>o.put(SCH,'sch_'+f0));else if(can()&&adm()&&!migrating){migrating=1;await migrate();migrating=0}render(1)}catch(er){sErr(er)}}
+async function migrate(){if(+localStorage.migT>Date.now()-6*36e5)return;localStorage.migT=Date.now();
+ try{toast('Meningkatkan database ke format hemat kuota…');const all=new Map();for(const x of R.values())all.set(x.id,strip(x));
+  if(all.size<5){const s=await fdoc().collection('r').get();usage('r',s.size);s.docs.forEach(d=>{const{st,rev,f,...x}=d.data();all.set(x.id,x)})}
+  const G=new Map();for(const x of all.values()){const k=bkey(x);(G.get(k)||G.set(k,{}).get(k))[x.id]=J(strip(x))}
+  for(const[k,recs]of G){const ref=fdoc().collection('b').doc(k),ids=Object.keys(recs);for(let i=0;i<ids.length;i+=300){const part=ids.slice(i,i+300);
+   await fs.runTransaction(async t=>{const sn=await t.get(ref),rem=sn.exists?(sn.data().recs||{}):{},put={};for(const id of part)if(!rem[id])put[id]=recs[id];if(Object.keys(put).length)t.set(ref,{recs:put,st:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})});usage('r',2);usage('w',1)}}
+  await fdoc().update({sch:2});SCH=2;tx('m','readwrite',o=>o.put(2,'sch_'+fid));localStorage.removeItem('migT');toast('Peningkatan selesai: '+all.size+' catatan dalam '+G.size+' bundel');pullAll('full')}catch(er){sErr(er)}}
 async function purgeOld(){if(!confirm('Hapus data format lama (koleksi r) di server? Data baru tidak terpengaruh. Ini memakai kuota hapus sebanyak jumlah catatan lama.'))return;try{let n=0,q;do{q=await fdoc().collection('r').limit(400).get();const b=fs.batch();q.docs.forEach(x=>b.delete(x.ref));await b.commit();n+=q.size}while(q.size);toast('Data lama dihapus: '+n+' dokumen')}catch(er){sErr(er)}}
+function schedule(){clearInterval(pollT);const m=smode();if(m=='manual')return;pollT=setInterval(()=>{if(document.hidden||!fid)return;pullAll();if(Date.now()-lastFam>18e5)famCheck(fid)},m=='cepat'?60000:(FB.databaseURL?12e5:3e5))}
+const setMode=v=>{localStorage.smode=v;schedule();toast('Mode sinkron: '+({hemat:'Hemat',cepat:'Cepat',manual:'Manual'}[v]));render()};
+// ----- Realtime Database (opsional, gratis): sinyal perubahan + status online, tanpa memakai kuota Firestore -----
+const loadScript=u=>new Promise((ok,no)=>{const s=document.createElement('script');s.src=u;s.onload=ok;s.onerror=no;document.head.append(s)});
 const PGN={home:'Overview',list:'Transaksi',bs:'Neraca',bg:'Anggaran',bel:'Belanja',set:'Pengaturan'},presOn=()=>localStorage.pres_off!='1',pname=p=>p.name||String(p.email||'').split('@')[0];
-const onl=()=>[...PR.values()].filter(p=>p.uid!=user.uid&&Date.now()-p.last<6*60000);
+const onl=()=>[...PR.values()].filter(p=>p.uid!=user.uid);
 const presH=()=>{const o=onl();return o.length?`<button class=pill id=pres onclick="presModal()" title="${e(o.map(pname).join(', '))}">🟢 ${o.length} online</button>`:''};
-function hb(off){if(!fid||!user||!navigator.onLine||(!off&&(document.hidden||!presOn())))return;lastHb=Date.now();usage('w',1);fdoc().collection('p').doc(user.uid).set({uid:user.uid,email:user.email,name:user.displayName||'',last:off?0:Date.now(),at:view},{merge:true}).catch(()=>{})}
-function startPres(){stopPres();if(!fid||document.hidden)return;unsubP=fdoc().collection('p').onSnapshot(s=>{const ch=s.docChanges();usage('r',ch.length);ch.forEach(c=>PR.set(c.doc.id,c.doc.data()));const w=$('#presw');if(w)w.innerHTML=presH()},()=>{})}
-function stopPres(){unsubP&&unsubP();unsubP=null}
-function setPres(v){if(v){localStorage.removeItem('pres_off');hb()}else{localStorage.pres_off='1';hb(1)}render()}
 function presModal(){const Mo=modal();Mo.innerHTML=`<h3>Sedang online di database ini</h3>${onl().map(p=>`<div class=tr><span>🟢 <b>${e(pname(p))}</b><br><small>${e(p.email||'')}</small></span><small>${PGN[p.at]||''}</small></div>`).join('')||'<p class=mt>Hanya Anda yang online saat ini.</p>'}<p class=mut style="font-size:12px">Anda ${presOn()?'terlihat':'tidak terlihat'} oleh anggota lain (atur di Pengaturan → Preferensi).</p><div class=row><button id=x>Tutup</button></div>`;Mo.querySelector('#x').onclick=Mo.close}
-async function startBel(f0){const cut=Date.now()-90*864e5,c=await tx('m','readonly',o=>o.get('bel_'+f0))||[];c.forEach(d=>{if(d.ts>cut)BEL.set(d.id,d)});const last=await tx('m','readonly',o=>o.get('belst_'+f0));
- let q=fdoc().collection('belanja');q=last?q.where('st','>',firebase.firestore.Timestamp.fromMillis(last-10000)).orderBy('st'):q.where('ts','>',cut);
- unsubB=q.onSnapshot(async s=>{if(f0!=fid)return;let mx=last||0;const ch=s.docChanges();usage('r',ch.length);ch.forEach(c=>{const{st,...d}=c.doc.data();if(st&&st.toMillis&&st.toMillis()>mx)mx=st.toMillis();c.type=='removed'?BEL.delete(c.doc.id):BEL.set(c.doc.id,d)});
-  await tx('m','readwrite',o=>{o.put([...BEL.values()],'bel_'+f0);if(mx&&mx!==last)o.put(mx,'belst_'+f0)});belAuto();render(1)},()=>{})}
-async function listen(){unsub&&unsub();unsubF&&unsubF();unsubB&&unsubB();stopPres();BEL.clear();PR.clear();dataOn=0;migrating=0;const f0=fid;SCH=(await tx('m','readonly',o=>o.get('sch_'+f0)))||0;
- unsubF=fdoc().onSnapshot(s=>{if(f0!=fid)return;if(!s.exists){toast('Database ini sudah dihapus');return toPick()}const d=s.data(),m=(d.members||{})[user.uid];if(!m&&role!='super'){toast('Anda dikeluarkan dari database ini');return toPick()}if(m&&role!='super'){role=m.role;vacc=m.accs||[]}famName=d.name;SCH=d.sch||1;
-  if(SCH>=2){tx('m','readwrite',o=>o.put(SCH,'sch_'+f0));if(!dataOn){dataOn=1;startData(f0)}}else if(!migrating&&can()&&adm()&&navigator.onLine){migrating=1;migrate().then(()=>{migrating=0})}
-  render(1)},()=>{});
- if(role!='viewer')startBel(f0);startPres();hb()}
-function setSt(){const b=$('#sy');if(!b)return;const n=[...R.values()].filter(x=>x.dirty).length;b.className='pill';b.innerHTML=ic('sync').replace('class=ic','class=ic style="width:14px;height:14px;vertical-align:-2px"')+' '+(navigator.onLine?'Online':'Offline')+(n?' · '+n+' ⟳':' ✓')+(syncErr?' ⚠':'');b.style.background=navigator.onLine?'':'#ffe3e0';b.title=syncErr||''}
+const rtAt=k=>{if(rdb&&fid&&user&&presOn())rdb.ref('fam/'+fid+'/p/'+user.uid+'/at').set(k||view)},hb=off=>{if(!rdb||!fid||!user)return;if(off)rdb.ref('fam/'+fid+'/p/'+user.uid).remove();else rtAt()};
+const sigPush=()=>{if(rdb&&fid&&user)rdb.ref('fam/'+fid+'/sig').set({t:Date.now(),by:user.uid})};
+function rtdbStop(){if(!rdb||!fid||!user)return;try{rdb.ref('fam/'+fid+'/sig').off();rdb.ref('fam/'+fid+'/p').off();rdb.ref('.info/connected').off();rdb.ref('fam/'+fid+'/p/'+user.uid).remove()}catch{}PR.clear()}
+const stopPres=()=>rtdbStop(),startPres=()=>{};
+function setPres(v){localStorage.pres_off=v?'':'1';if(rdb&&fid&&user){if(v)rdb.ref('fam/'+fid+'/p/'+user.uid).set({email:user.email,name:user.displayName||'',at:view});else hb(1)}render()}
+async function rtdbStart(){if(!FB.databaseURL||!navigator.onLine||!fid)return;const f0=fid,base='fam/'+f0;
+ try{if(!rdb){if(!firebase.database)await loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js');rdb=firebase.database()}if(f0!=fid)return;
+  rdb.ref(base+'/sig').on('value',s=>{const v=s.val();if(!v||v.by==user.uid||v.t<=sigSeen)return;sigSeen=v.t;if(smode()=='manual')return;clearTimeout(sigT);sigT=setTimeout(()=>pullAll(true),2500)});
+  rdb.ref('.info/connected').on('value',s=>{if(s.val()&&presOn()){const r=rdb.ref(base+'/p/'+user.uid);r.onDisconnect().remove();r.set({email:user.email,name:user.displayName||'',at:view})}});
+  rdb.ref(base+'/p').on('value',s=>{PR.clear();const v=s.val()||{};for(const u in v)PR.set(u,{uid:u,...v[u]});const w=$('#presw');if(w)w.innerHTML=presH()})}catch(er){console.warn('RTDB',er)}}
+async function listen(){unsub&&unsub();unsubF&&unsubF();unsubB&&unsubB();stopPres();clearInterval(pollT);BEL.clear();PR.clear();migrating=0;lastPull=0;lastBel=0;const f0=fid;
+ SCH=(await tx('m','readonly',o=>o.get('sch_'+f0)))||0;const c=await tx('m','readonly',o=>o.get('bel_'+f0))||[],cut=Date.now()-90*864e5;c.forEach(d=>{if(d.ts>cut)BEL.set(d.id,d)});render(1);
+ await famCheck(f0);if(f0!=fid)return;if(SCH>=2)await pullAll(true);schedule();rtdbStart()}
+function setSt(){const b=$('#sy');if(!b)return;const n=[...R.values()].filter(x=>x.dirty).length;b.className='pill';b.innerHTML=ic('sync').replace('class=ic','class=ic style="width:14px;height:14px;vertical-align:-2px"')+' '+(navigator.onLine?'Online':'Offline')+(n?' · '+n+' ⟳':' ✓')+(qOff()?' ⛔ kuota':syncErr?' ⚠':'');b.style.background=navigator.onLine?'':'#ffe3e0';b.title=syncErr||''}
 // ---------- Auth & database ----------
 async function boot(){try{Object.keys(localStorage).filter(k=>k.startsWith('use_')&&k!='use_'+today()).forEach(k=>localStorage.removeItem(k));localStorage.kk_url=location.origin+location.pathname.replace(/[^\/]*$/,'')}catch{}idb=await idbo();firebase.initializeApp(FB);au=firebase.auth();fs=firebase.firestore();render();
  au.onAuthStateChanged(async u=>{user=u;if(!u){fid=null;scr='login';return render()}const fr=justLogin;justLogin=0;await afterAuth(u,fr)})}
@@ -170,9 +193,10 @@ async function afterAuth(u,fresh){let ds=await tx('m','readonly',o=>o.get('dbs_'
  await themeSync(u);dbs=ds||[];const d=dbs.find(x=>x.fid==localStorage['last_'+u.uid]);
  if(dbs.length==1||(dbs.length>1&&d&&!fresh))return openDb(d||dbs[0]);scr='pick';render()}
 async function loadInv(){const s=await fs.collection('invites').where('email','==',user.email.toLowerCase()).get();invs=s.docs.map(d=>({id:d.id,...d.data()}))}
-async function openDb(d){fid=d.fid;famName=d.name;role=user.email==SUPER?'super':d.role;vacc=d.accs||[];localStorage['last_'+user.uid]=fid;await load();await listen();scr='app';view='home';render();sync()}
-const APPV='2026.10.28-a';
-function fullSync(){tx('m','readwrite',o=>{o.delete('full3_'+fid);o.delete('st3_'+fid)}).then(()=>listen()).then(()=>toast('Sinkron ulang penuh dimulai'))}
+async function openDb(d){fid=d.fid;famName=d.name;role=user.email==SUPER?'super':d.role;vacc=d.accs||[];localStorage['last_'+user.uid]=fid;await load();scr='app';view='home';render();listen()}
+const APPV='2026.10.29-a';
+function fullSync(){tx('m','readwrite',o=>{o.delete('full3_'+fid);o.delete('st3_'+fid)}).then(()=>pullAll('full')).then(()=>toast('Sinkron ulang penuh selesai'))}
+const modeBox=()=>{const m=smode(),lp=+localStorage.lpull||0;return`<div class=sr><div><b>Mode sinkron</b><small>Seberapa sering data orang lain ditarik dari server. Makin jarang = makin hemat kuota. Perubahan Anda tetap terkirim otomatis (ditunda 10 detik agar digabung).</small></div><div class=ctl><select onchange="setMode(this.value)">${opt([['hemat','Hemat: tarik tiap 5 menit, 20 menit bila sinyal RTDB aktif (disarankan)'],['cepat','Cepat: tarik tiap 1 menit'],['manual','Manual: hanya tombol Sync']],m)}</select></div></div><p class=mut style="font-size:12.5px;margin:6px 0">Terakhir menarik data: ${lp?new Date(lp).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}):'-'}. ${FB.databaseURL?'🟢 Sinyal perubahan dan status online aktif (Realtime Database): perangkat lain langsung menarik data saat ada perubahan.':'⚪ Status online dan sinyal instan belum aktif (butuh Realtime Database gratis, lihat petunjuk).'}</p><p class=mut style="font-size:12px;margin:0">Versi aplikasi ${APPV}. Pastikan semua perangkat menampilkan versi yang sama.</p>`};
 function toPick(){unsub&&unsub();unsubF&&unsubF();unsubB&&unsubB();stopPres();hb(1);fid=null;scr='load';render();afterAuth(user,1)}
 async function mkDb(){const n=($('#nn').value||'').trim();if(!n)return toast('Isi nama keluarga');if(dbs.length>=2)return toast('Maksimal 2 database');if(!navigator.onLine)return toast('Perlu koneksi internet');
  try{const f=uid();await fs.collection('families').doc(f).set({name:n,owner:user.uid,uids:[user.uid],members:{[user.uid]:{email:user.email,role:'admin',accs:[]}},sch:2});const d={fid:f,name:n,own:true,role:'admin',accs:[]};dbs.push(d);await openDb(d);await seed()}catch(x){toast(errm(x))}}
@@ -369,7 +393,7 @@ function vSet(){const p=pf(),A=adm(),vw=role=='viewer',keys=vw?['pref','db']:['p
  ${sr('Nama keluarga','',`<input value="${e(p.name||famName)}" onchange="sp('name',this.value)" ${dis}>`)}
  ${sr('Simbol uang','Mis. Rp, IDR, $',`<input value="${e(p.sym)}" onchange="sp('sym',this.value)" ${dis}>`)}
  ${sr('Format angka','Contoh: '+fm(1234567),`<select onchange="sp('fmt',this.value)" ${dis}>${opt([['id','1.234,56 (Indonesia)'],['en','1,234.56 (Inggris)']],p.fmt)}</select>`)}
- ${sr('Status online','Tampilkan ke anggota lain bahwa saya sedang online',`<label style="display:flex;gap:8px;align-items:center;margin:0;color:var(--tx)"><input type=checkbox style="width:auto" ${presOn()?'checked':''} onchange="setPres(this.checked)"> Tampilkan</label>`)}
+ ${sr('Status online',FB.databaseURL?'Tampilkan ke anggota lain bahwa saya sedang online (tidak memakai kuota Firestore)':'Belum aktif: perlu Realtime Database gratis (lihat petunjuk)',`<label style="display:flex;gap:8px;align-items:center;margin:0;color:var(--tx)"><input type=checkbox style="width:auto" ${presOn()?'checked':''} onchange="setPres(this.checked)"> Tampilkan</label>`)}
  ${sr('Desimal','',`<select onchange="sp('dec',+this.value)" ${dis}>${opt([[0,'Tanpa desimal'],[2,'2 desimal']],p.dec)}</select>`)}
  ${sr('Mulai periode bulanan','Tanggal 25 = periode 25 bulan ini s.d. 24 bulan depan',`<select onchange="sp('start',+this.value)" ${dis}>${opt(Array.from({length:28},(_,i)=>[i+1,i?'Tanggal '+(i+1):'Tanggal 1 (kalender)']),p.start)}</select>`)}</section>
  <section class=cd><h3>Tema tampilan</h3><p class=mut style="margin:0 0 8px">Tersimpan di akun Anda sendiri, tidak mengikuti database.</p><div class=themes>${[[1,'Buku catatan'],[2,'Pastel'],[3,'Profesional']].map(([k,l])=>`<button class="th th${k} ${userTheme()==k?'on':''}" onclick="setTheme(${k})"><i></i><span>${l}</span></button>`).join('')}</div></section>`;
@@ -381,7 +405,7 @@ function vSet(){const p=pf(),A=adm(),vw=role=='viewer',keys=vw?['pref','db']:['p
  else if(sets=='tag')b=tagTab();
  else if(sets=='usr')b=`<section class=cd><h3>Pengguna database ini</h3><div id=usr>…</div></section>`;
  else if(sets=='bak')b=`<section class=cd><h3>Backup & pindah data</h3><div class=bgrid><button class=bigbtn onclick="exX()">${ic('down')}<b>Export Excel</b><small>Transaksi, akun, kategori, anggaran</small></button><button class=bigbtn onclick="exJ()">${ic('down')}<b>Export JSON</b><small>Cadangan lengkap database</small></button><label class=bigbtn>${ic('up')}<b>Import Excel</b><small>Format default atau Pengelola Keuangan</small><input type=file hidden accept=".xlsx,.xls,.csv" onchange="xlImport(this.files[0]);this.value=''"></label><label class=bigbtn>${ic('up')}<b>Import JSON</b><small>Pulihkan dari cadangan</small><input type=file hidden accept=".json" onchange="imJ(this.files[0]);this.value=''"></label></div><p class=mut style="font-size:13px">Saat impor Anda memilih <b>Tambah</b> (gabung) atau <b>Ganti semua</b>.</p></section>`;
- else b=`<section class=cd><h3>Database Anda (maks. 2)</h3>${dbs.map((d,i)=>`<div class=tr><div class=g1><b>${e(d.name)}</b>${d.fid==fid?' <small>(aktif)</small>':''}<br><small>${d.own?'Milik Anda':'Diundang'} · ${d.role}</small></div><span style="display:flex;gap:4px">${d.fid!=fid?`<button class=sm onclick="openDb(dbs[${i}])">Buka</button>`:''}${d.own?`<button class="ico dng" onclick="delForm(dbs[${i}])">${ic('trash')}</button>`:''}</span></div>`).join('')}<div class=row><button onclick="toPick()">Ganti / tambah database</button><button onclick="fullSync()">${ic('sync')} Sinkron ulang penuh</button>${adm()?'<button onclick="purgeOld()">Hapus data format lama</button>':''}<button onclick="au.signOut()">Keluar (${e(user.email)})</button></div><p class=mut style="font-size:12px;margin:8px 0 0">Versi aplikasi ${APPV}. Pastikan semua perangkat menampilkan versi yang sama. Data disimpan dalam bundel (hemat kuota), jadi Sinkron ulang penuh hanya membaca puluhan dokumen.</p></section>${usageH()}${role=='super'?'<section class=cd><h3>Superadmin: semua keluarga</h3><div id=sup>…</div></section>':''}`;
+ else b=`<section class=cd><h3>Database Anda (maks. 2)</h3>${dbs.map((d,i)=>`<div class=tr><div class=g1><b>${e(d.name)}</b>${d.fid==fid?' <small>(aktif)</small>':''}<br><small>${d.own?'Milik Anda':'Diundang'} · ${d.role}</small></div><span style="display:flex;gap:4px">${d.fid!=fid?`<button class=sm onclick="openDb(dbs[${i}])">Buka</button>`:''}${d.own?`<button class="ico dng" onclick="delForm(dbs[${i}])">${ic('trash')}</button>`:''}</span></div>`).join('')}<div class=row><button onclick="toPick()">Ganti / tambah database</button><button onclick="fullSync()">${ic('sync')} Sinkron ulang penuh</button>${adm()?'<button onclick="purgeOld()">Hapus data format lama</button>':''}<button onclick="au.signOut()">Keluar (${e(user.email)})</button></div>${modeBox()}</section>${usageH()}${role=='super'?'<section class=cd><h3>Superadmin: semua keluarga</h3><div id=sup>…</div></section>':''}`;
  return tabs+b}
 
 let MEM={},IA=[];
@@ -613,10 +637,10 @@ function vCmp(){const now=pKey(today()),A=cm.a||now,B=cm.mode=='prev'?addM(A,-1)
  <section class=cd><h3>Per akun pembayar</h3>${acs.length?hd+acs.map(t=>cRow(lab(t),aa.get(t)||0,ab.get(t)||0,0,'E','',false,false,'')).join(''):'<p class=mt>Belum ada data.</p>'}</section>`}
 // ---------- Render ----------
 const navs=()=>[['home','Overview','home','Overview'],['list','Transaksi','list','Transaksi'],['bs','Neraca','bank','Neraca'],...(can()?[['bg','Anggaran','coin','Anggaran'],['bel','Belanja','cart','Belanja']]:[]),['set','Pengaturan','gear','Setelan']];
-const go=k=>{if(Date.now()-lastHb>90000)hb();view=k;render();scrollTo(0,0)};
+const go=k=>{rtAt(k);if(k=='bel')pullBel();view=k;render();scrollTo(0,0)};
 function shell(){if(!navs().some(n=>n[0]==view))view='home';const ti=navs().find(n=>n[0]==view)[1],nm=e(pf().name||famName);
  return`<div class=shell><aside class=sb><div class=brand>${LOGO}<span>Keuangan<br>Keluarga</span></div><nav>${navs().map(([k,l,i,sh])=>`<button class="${view==k?'on':''}" onclick="go('${k}')">${ic(i)}<span class=lf>${l}</span><span class=ls>${sh||l}</span></button>`).join('')}</nav><div class=sbf><div class=dbn>${nm}<small>${role}</small></div>${can()?`<a href="${BELANJA_URL}">${ic('cart')} BelanjaApp</a>`:''}<button onclick="toPick()">${ic('swap')} Ganti database</button><button onclick="au.signOut()">${ic('out')} Keluar</button></div></aside>
- <div class=mn><header class=tb><div><h1>${ti}</h1><small>${nm}</small></div><span id=presw>${presH()}</span><span><button id=sy onclick="sync()"></button><button class="ico mob" title="Ganti database" onclick="toPick()">${ic('swap')}</button></span></header>${SCH&&SCH<2?'<div class=ex style="margin:8px 20px">Database sedang ditingkatkan ke format hemat kuota. Admin perlu membuka aplikasi versi terbaru dulu; data Anda aman dan tetap bisa dilihat.</div>':''}<main>${{home:vHome,list:vList,bs:vBS,bg:vBud,bel:vBel,set:vSet}[view]()}</main></div>${can()&&view!='bg'?`<button class=fab title="Catat transaksi" onclick="txForm()">${ic('plus')}</button>`:''}</div>`}
+ <div class=mn><header class=tb><div><h1>${ti}</h1><small>${nm}</small></div><span id=presw>${presH()}</span><span><button id=sy onclick="syncNow()"></button><button class="ico mob" title="Ganti database" onclick="toPick()">${ic('swap')}</button></span></header>${qOff()?`<div class=ex style="margin:8px 20px">⛔ Kuota harian Firestore habis. Data aman di perangkat dan terkirim otomatis setelah kuota diperbarui (sekitar ${new Date(QX()).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}).</div>`:''}${SCH&&SCH<2?'<div class=ex style="margin:8px 20px">Database sedang ditingkatkan ke format hemat kuota. Admin perlu membuka aplikasi versi terbaru dulu; data Anda aman dan tetap bisa dilihat.</div>':''}<main>${{home:vHome,list:vList,bs:vBS,bg:vBud,bel:vBel,set:vSet}[view]()}</main></div>${can()&&view!='bg'?`<button class=fab title="Catat transaksi" onclick="txForm()">${ic('plus')}</button>`:''}</div>`}
 function render(soft){const a=document.activeElement;if(soft&&a&&/INPUT|SELECT|TEXTAREA/.test(a.tagName)&&a.closest('#app,.ov')){pendR=1;return}
  const y=scrollY;setVis();const th=user?userTheme():localStorage.th||3;localStorage.th=th;document.body.dataset.t=th;
  $('#app').innerHTML=scr=='login'?loginH():scr=='pick'?pickH():scr=='app'?shell():'<p class=mt style="padding:40vh 0">Memuat…</p>';
@@ -627,8 +651,8 @@ function showInst(ios){if(stand()||+localStorage.instNo>Date.now()||$('.inst'))r
  d.querySelector('#ix').onclick=()=>{localStorage.instNo=Date.now()+14*864e5;d.remove()};const b=d.querySelector('#ib');if(b)b.onclick=async()=>{d.remove();dip.prompt();await dip.userChoice;dip=null}}
 addEventListener('beforeinstallprompt',ev=>{ev.preventDefault();dip=ev;setTimeout(()=>showInst(0),8000)});
 if(/iphone|ipad/i.test(navigator.userAgent)&&!stand())setTimeout(()=>showInst(1),10000);
-let pendR=0;setInterval(()=>{hb();const w=$('#presw');if(w)w.innerHTML=presH()},150000);document.addEventListener('visibilitychange',()=>{if(!fid)return;if(document.hidden){stopPres();hb(1)}else{startPres();hb()}});addEventListener('focusout',()=>{if(pendR){pendR=0;setTimeout(()=>render(),80)}});
-addEventListener('online',()=>{sync();setSt()});addEventListener('offline',setSt);setInterval(sync,60000);
+let pendR=0;document.addEventListener('visibilitychange',()=>{if(!fid)return;if(document.hidden){clearTimeout(qT);sync()}else if(smode()!='manual'&&Date.now()-lastPull>120000){pullAll();if(Date.now()-lastFam>6e5)famCheck(fid)}});addEventListener('focusout',()=>{if(pendR){pendR=0;setTimeout(()=>render(),80)}});
+addEventListener('online',()=>{sync();pullAll();setSt()});addEventListener('offline',setSt);setInterval(()=>{if(smode()!='manual')sync()},60000);
 if('serviceWorker'in navigator){const had=!!navigator.serviceWorker.controller;navigator.serviceWorker.register('sw.js');navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had&&!window.__rl){window.__rl=1;location.reload()}})}
 boot();
 </script></body></html>
