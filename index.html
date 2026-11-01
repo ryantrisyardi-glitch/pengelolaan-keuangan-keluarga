@@ -7,8 +7,19 @@
   <title>Keuangan Keluarga</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#12274a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Keuangan">
   <link rel="icon" href="icon.svg">
   <link rel="apple-touch-icon" href="icon-192.png">
+  <script>
+    window.deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      window.deferredPrompt = e;
+    });
+  </script>
   <link
     href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Inter:wght@400;600;700&family=Nunito:wght@400;600;800&family=Aref+Ruqaa:wght@700&family=Caveat:wght@500;700&display=swap"
     rel="stylesheet">
@@ -572,7 +583,7 @@
       border: var(--cb);
       border-radius: 10px;
       box-shadow: 0 12px 30px #0004;
-      z-index: 99;
+      z-index: 999;
       padding: 4px
     }
 
@@ -605,6 +616,501 @@
       font-variant-numeric: tabular-nums;
       color: var(--tx);
       box-shadow: 0 1px 3px #0001
+    }
+
+    .mut-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap
+    }
+
+    .mut-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 0
+    }
+
+    .mut-acc-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--tx)
+    }
+
+    .mut-badge-kind {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--ac) 14%, var(--cd));
+      color: var(--ac);
+      border: 1px solid color-mix(in srgb, var(--ac) 30%, var(--bd))
+    }
+
+    .mut-badge-kind.kind-L {
+      background: color-mix(in srgb, var(--out) 14%, var(--cd));
+      color: var(--out);
+      border-color: color-mix(in srgb, var(--out) 30%, var(--bd))
+    }
+
+    .mut-badge-kind.kind-Q {
+      background: color-mix(in srgb, #7b5aa6 14%, var(--cd));
+      color: #7b5aa6;
+      border-color: color-mix(in srgb, #7b5aa6 30%, var(--bd))
+    }
+
+    .mut-hdr-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .mut-stats-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 8px;
+      margin: 12px 0 14px
+    }
+
+    @media(max-width:820px) {
+      .mut-stats-grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+      .mut-stat-main {
+        grid-column: span 2
+      }
+    }
+
+    .mut-stat-card {
+      background: var(--cd);
+      border: var(--cb);
+      border-radius: 12px;
+      padding: 10px 12px;
+      box-shadow: 0 1px 3px #1b24330a;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between
+    }
+
+    .mut-stat-main {
+      background: linear-gradient(135deg, color-mix(in srgb, var(--ac) 14%, var(--cd)), var(--cd));
+      border-left: 4px solid var(--ac)
+    }
+
+    .mut-stat-lbl {
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: .5px;
+      font-size: 10.5px;
+      color: var(--mut);
+      margin-bottom: 2px
+    }
+
+    .mut-stat-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--tx);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2
+    }
+
+    .mut-stat-main .mut-stat-val {
+      font-size: 22px
+    }
+
+    .mut-stat-sub {
+      font-size: 11px;
+      color: var(--mut);
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .mut-ctrls {
+      background: color-mix(in srgb, var(--tx) 3%, var(--cd));
+      border: var(--cb);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px
+    }
+
+    .mut-pills-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch
+    }
+
+    .mut-pill {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--cd);
+      color: var(--tx);
+      border: 1px solid var(--bd);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: .15s;
+      flex: none
+    }
+
+    .mut-pill:hover {
+      background: color-mix(in srgb, var(--ac) 10%, var(--cd))
+    }
+
+    .mut-pill.on {
+      background: var(--ac);
+      color: #fff;
+      border-color: var(--ac)
+    }
+
+    .mut-custom-date-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--bd);
+      flex-wrap: wrap
+    }
+
+    .mut-custom-date-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      font-size: 12.5px;
+      color: var(--mut);
+      font-weight: 600
+    }
+
+    .mut-custom-date-row input[type="date"] {
+      padding: 4px 8px;
+      font-size: 12.5px;
+      border-radius: 8px;
+      border: 1px solid var(--bd);
+      background: var(--cd);
+      color: var(--tx);
+      width: auto
+    }
+
+    .mut-filter-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap
+    }
+
+    .mut-search-wrap {
+      flex: 1;
+      min-width: 180px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--cd);
+      border: 1px solid var(--bd);
+      border-radius: 9px;
+      padding: 0 8px
+    }
+
+    .mut-search-ico {
+      display: grid;
+      place-items: center;
+      color: var(--mut)
+    }
+
+    .mut-search-ico svg {
+      width: 16px;
+      height: 16px
+    }
+
+    .mut-search-wrap input {
+      border: 0 !important;
+      background: transparent !important;
+      padding: 7px 4px !important;
+      font-size: 13px !important;
+      margin: 0 !important;
+      width: 100%
+    }
+
+    .mut-search-wrap input:focus {
+      outline: none
+    }
+
+    .mut-type-tabs {
+      display: flex;
+      gap: 4px;
+      flex: none
+    }
+
+    .mut-type-btn {
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid var(--bd);
+      background: var(--cd);
+      color: var(--tx);
+      cursor: pointer;
+      transition: .12s
+    }
+
+    .mut-type-btn.on {
+      background: var(--tx);
+      color: var(--cd);
+      border-color: var(--tx)
+    }
+
+    .mut-list-wrap {
+      max-height: 56vh;
+      overflow-y: auto;
+      padding-right: 4px
+    }
+
+    .mut-date-group {
+      margin-bottom: 12px
+    }
+
+    .mut-date-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 10px;
+      margin: 10px 0 6px;
+      background: color-mix(in srgb, var(--tx) 5%, var(--cd));
+      border-radius: 9px;
+      border-left: 3px solid var(--ac)
+    }
+
+    .mut-date-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .mut-date-day {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--ac);
+      font-variant-numeric: tabular-nums
+    }
+
+    .mut-date-meta {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15
+    }
+
+    .mut-date-dayname {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--tx)
+    }
+
+    .mut-date-my {
+      font-size: 10.5px;
+      color: var(--mut);
+      font-weight: 600
+    }
+
+    .mut-date-totals {
+      display: flex;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums
+    }
+
+    .mut-day-in {
+      color: var(--in)
+    }
+
+    .mut-day-out {
+      color: var(--out)
+    }
+
+    .mut-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      margin: 4px 0;
+      background: var(--cd);
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: .14s
+    }
+
+    .mut-row:hover {
+      background: color-mix(in srgb, var(--ac) 6%, var(--cd));
+      border-color: color-mix(in srgb, var(--ac) 35%, var(--bd));
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px #0001
+    }
+
+    .mut-type-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      flex: none
+    }
+
+    .mut-type-icon svg {
+      width: 17px;
+      height: 17px
+    }
+
+    .mut-type-icon.in {
+      background: color-mix(in srgb, var(--in) 16%, var(--cd));
+      color: var(--in)
+    }
+
+    .mut-type-icon.out {
+      background: color-mix(in srgb, var(--out) 16%, var(--cd));
+      color: var(--out)
+    }
+
+    .mut-type-icon.tf-in {
+      background: color-mix(in srgb, #0e9f8e 16%, var(--cd));
+      color: #0e9f8e
+    }
+
+    .mut-type-icon.tf-out {
+      background: color-mix(in srgb, #e07b39 16%, var(--cd));
+      color: #e07b39
+    }
+
+    .mut-row-main {
+      flex: 1;
+      min-width: 0
+    }
+
+    .mut-row-top {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 2px
+    }
+
+    .mut-tp-tag {
+      font-size: 9.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      padding: 1px 6px;
+      border-radius: 5px
+    }
+
+    .mut-tp-tag.in {
+      background: var(--in);
+      color: #fff
+    }
+
+    .mut-tp-tag.out {
+      background: var(--out);
+      color: #fff
+    }
+
+    .mut-tp-tag.tf-in {
+      background: #0e9f8e;
+      color: #fff
+    }
+
+    .mut-tp-tag.tf-out {
+      background: #e07b39;
+      color: #fff
+    }
+
+    .mut-row-note {
+      font-size: 14.5px;
+      color: var(--tx);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap
+    }
+
+    .mut-row-sub {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-size: 11.5px;
+      color: var(--mut);
+      line-height: 1.3
+    }
+
+    .mut-detail {
+      font-weight: 600
+    }
+
+    .mut-desc {
+      font-style: italic;
+      color: var(--mut)
+    }
+
+    .mut-fee-badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: color-mix(in srgb, var(--tx) 8%, var(--cd));
+      color: var(--tx)
+    }
+
+    .mut-row-right {
+      text-align: right;
+      flex: none
+    }
+
+    .mut-row-amt {
+      font-size: 15px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2
+    }
+
+    .mut-empty-state {
+      text-align: center;
+      padding: 36px 16px;
+      background: color-mix(in srgb, var(--tx) 2%, var(--cd));
+      border: 1px dashed var(--bd);
+      border-radius: 12px;
+      margin: 14px 0
+    }
+
+    .mut-load-more {
+      width: 100%;
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--ac) 10%, var(--cd));
+      color: var(--ac);
+      border: 1px solid color-mix(in srgb, var(--ac) 30%, var(--bd));
+      cursor: pointer;
+      transition: .15s
+    }
+
+    .mut-load-more:hover {
+      background: var(--ac);
+      color: #fff
     }
 
     .mut-bal-pill small {
@@ -1077,7 +1583,7 @@
       color: #fff;
       padding: 10px 18px;
       border-radius: 24px;
-      z-index: 99;
+      z-index: 99999;
       animation: pop .2s;
       max-width: 90vw;
       text-align: center
@@ -2315,7 +2821,7 @@
     let au, fs, user, fid, famName = '', role = '', vacc = [], dbs = [], invs = [], scr = 'load', R = new Map(), unsub, unsubF, idb, view = 'home', sets = 'pref', VIS = null, lm = 'in', justLogin = 0, OV = {}, M = null;
     let hm = 'bar'; const ox = new Set(), mk = { acc: 'A', cat: 'E' };
     const fd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'), today = () => fd(new Date());
-    let st = { mode: 'day', cur: today(), q: '', type: '', acc: '', cat: '', tag: '' }, ov = { n: 6, cur: today() };
+    let st = { mode: localStorage.tx_mode || 'month', cur: today(), q: '', type: '', acc: '', cat: '', tag: '' }, ov = { n: 6, cur: today() };
     const $ = s => document.querySelector(s), e = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
     const can = () => role && role != 'viewer', adm = () => role == 'admin' || role == 'super';
@@ -2541,7 +3047,7 @@ ${dbs.length < 2 && !invs.length ? '<p class=mt>Ingin bergabung ke database kelu
       const s = +pf().start; let M = c.getMonth(); if (c.getDate() < s) M--; const a = new Date(y, M, s), b = new Date(y, M + 1, s - 1); return [fd(a), fd(b), fmtDate(a) + ' – ' + fmtDate(b)]
     }
     function mv(o, d) { const [a, b] = rng(o), c = new Date(o.cur + 'T00:00'); if (o.mode == 'day') c.setDate(c.getDate() + d); else if (o.mode == 'year') c.setFullYear(c.getFullYear() + d); else { const t = new Date((d < 0 ? a : b) + 'T00:00'); t.setDate(t.getDate() + d); c.setTime(t) } o.cur = fd(c); render() }
-    const navH = (o, n) => `<div class=row style="margin:6px 0;align-items:center"><button class=ico style="flex:none" onclick="mv(${n},-1)">${ic('rt').replace('M9 6l6 6-6 6', 'M15 6l-6 6 6 6')}</button><b style="text-align:center">${rng(o)[2]}</b><button class=ico style="flex:none" onclick="mv(${n},1)">${ic('rt')}</button><select style="flex:none;width:auto" onchange="${n}.mode=this.value;${n}.cur=today();render()">${[['day', 'Harian'], ['month', 'Bulanan'], ['year', 'Tahunan']].map(([k, l]) => `<option value=${k} ${o.mode == k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>`;
+    const navH = (o, n) => `<div class=row style="margin:6px 0;align-items:center"><button class=ico style="flex:none" onclick="mv(${n},-1)">${ic('rt').replace('M9 6l6 6-6 6', 'M15 6l-6 6 6 6')}</button><b style="text-align:center">${rng(o)[2]}</b><button class=ico style="flex:none" onclick="mv(${n},1)">${ic('rt')}</button><select style="flex:none;width:auto" onchange="${n}.mode=this.value;if('${n}'=='st')localStorage.tx_mode=this.value;${n}.cur=today();render()">${[['day', 'Harian'], ['month', 'Bulanan'], ['year', 'Tahunan']].map(([k, l]) => `<option value=${k} ${o.mode == k ? 'selected' : ''}>${l}</option>`).join('')}</select></div>`;
     // ---------- Picker, modal, baris kategori ----------
     function picker(t, kind, val, cb, ex, rl) {
       const w = document.createElement('div'); w.className = 'pk'; let ps = []; if (val) { let x = R.get(val); while (x) { ps.unshift(x.id); x = x.p && R.get(x.p) } }
@@ -2565,7 +3071,24 @@ ${dbs.length < 2 && !invs.length ? '<p class=mt>Ingin bergabung ke database kelu
       document.addEventListener('click', ev => { if (!sw.contains(ev.target)) sdrop.style.display = 'none' });
       draw(); w.append(sw, sc); return w
     }
-    function modal(wide, front, isCalc) { const d = document.createElement('div'); d.className = 'ov' + (front ? ' front' : '') + (isCalc ? ' calc-ov' : ''); const m = document.createElement('div'); m.className = 'md' + (wide ? ' wide' : '') + (isCalc ? ' calc-modal' : ''); d.append(m); d.onmousedown = ev => { d._s = ev.target == d }; d.onclick = ev => { if (ev.target == d && d._s) { if (activeMutModal === m) { activeMutId = null; activeMutModal = null } d.remove() } }; document.body.append(d); m.close = () => { if (activeMutModal === m) { activeMutId = null; activeMutModal = null } d.remove() }; return m }
+    function modal(wide, front, isCalc) {
+      const d = document.createElement('div');
+      let highestZ = 80;
+      document.querySelectorAll('.ov').forEach(el => {
+        const z = parseInt(el.style.zIndex || window.getComputedStyle(el).zIndex) || 0;
+        if (z >= highestZ) highestZ = z;
+      });
+      d.className = 'ov' + (wide ? ' wide-ov' : '') + (front ? ' front' : '') + (isCalc ? ' calc-ov' : '');
+      d.style.zIndex = highestZ + 10;
+      const m = document.createElement('div');
+      m.className = 'md' + (wide ? ' wide' : '') + (isCalc ? ' calc-modal' : '');
+      d.append(m);
+      d.onmousedown = ev => { d._s = ev.target == d };
+      d.onclick = ev => { if (ev.target == d && d._s) { if (activeMutModal === m) { activeMutId = null; activeMutModal = null } d.remove() } };
+      document.body.append(d);
+      m.close = () => { if (activeMutModal === m) { activeMutId = null; activeMutModal = null } d.remove() };
+      return m
+    }
     function showCalculator(targetInput, onApply) {
       const Mo = modal(false, true, true); let expr = ''; const curVal = targetInput ? pn(targetInput.value) : 0; if (curVal > 0) expr = String(curVal);
       const getRes = () => { if (!expr) return 0; return evalMath(expr) };
@@ -2594,8 +3117,14 @@ ${dbs.length < 2 && !invs.length ? '<p class=mt>Ingin bergabung ke database kelu
     const dlist = () => `<datalist id=nl>${[...new Set(L('tx').map(t => t.note).filter(Boolean))].slice(-300).map(n => `<option value="${e(n)}">`).join('')}</datalist>`;
     // ---------- Form transaksi ----------
     function feeForm(x, done) {
-      const Mo = modal(), q = s => Mo.querySelector(s); Mo.innerHTML = '<h3>Kategori biaya transfer</h3><p class=mut>Pecah biaya admin ke kategori pengeluaran, sama seperti Expense.</p><div id=fr></div><button id=fa2 class=sm>+ Tambah kategori</button> <b id=ft style="float:right"></b><div class=row><button class=pri id=fo>Terapkan</button><button id=fc>Batal</button></div>';
-      const t = () => q('#ft').textContent = 'Total: ' + fm(c.sum()), c = catRows(q('#fr'), 'E', x.feeItems, t); t(); q('#fa2').onclick = c.add; q('#fc').onclick = Mo.close; q('#fo').onclick = () => { done(c.get().filter(i => i.cat && i.amt)); Mo.close() }
+      const Mo = modal(false, true), q = s => Mo.querySelector(s);
+      Mo.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">Kategori Biaya Transfer / Admin</h3><button class=ico id=fcx title="Tutup">${ic('x')}</button></div><p class=mut style="margin:0 0 12px;font-size:13px">Pecah biaya admin ke kategori pengeluaran (mis. Biaya Bank, Biaya Layanan, Pajak Transfer).</p><div id=fr></div><button id=fa2 class=sm style="margin-top:8px">+ Tambah kategori</button> <b id=ft style="float:right;line-height:30px"></b><div class=row style="margin-top:16px"><button class=pri id=fo>Terapkan</button><button id=fc>Batal</button></div>`;
+      const t = () => q('#ft').textContent = 'Total: ' + fm(c.sum()), c = catRows(q('#fr'), 'E', x.feeItems, t);
+      t();
+      q('#fa2').onclick = c.add;
+      q('#fc').onclick = Mo.close;
+      q('#fcx').onclick = Mo.close;
+      q('#fo').onclick = () => { done(c.get().filter(i => i.cat && i.amt)); Mo.close() }
     }
     function txForm(old) {
       const defAcc = activeMutId || ''; const x = old ? { ...old } : { type: 'out', date: today(), acc: defAcc, items: [{}] }, Mo = modal(false, true); let pa, pb, cr; const q = s => Mo.querySelector(s);
@@ -2748,16 +3277,400 @@ ${dbs.length < 2 && !invs.length ? '<p class=mt>Ingin bergabung ke database kelu
       return ctl + sec('A', 'Aset') + sec('L', 'Liabilitas') + sec('Q', 'Ekuitas') + '<p class=mt>Ketuk nama akun untuk melihat mutasi masuk/keluar.</p>'
     }
 
-    function renderMut() {
-      if (!activeMutId || !activeMutModal) return; const id = activeMutId, ids = new Set(desc('acc', id)), a = R.get(id); if (!a) { activeMutModal.close(); return } const s = sg(a.kind); let run = [...ids].reduce((t, x) => t + (R.get(x).open || 0), 0); const xs = L('tx').filter(x => ids.has(x.acc) || ids.has(x.to)).sort((p, q) => p.date.localeCompare(q.date) || p.ts - q.ts);
-      const rs = xs.map(x => { const d = eff(x).filter(([k]) => ids.has(k)).reduce((t, [, v]) => t + v, 0); run += d; return { x, d: d * s, run: run * s } }).reverse();
-      activeMutModal.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px"><div><h3 style="margin:0">${e(path(id))}</h3><small class=mut>Mutasi Akun</small></div><button class=ico id=cx title=Tutup>${ic('x')}</button></div>
- <div style="background:linear-gradient(135deg, color-mix(in srgb, var(--ac) 14%, var(--cd)), var(--cd));border:var(--cb);border-left:5px solid var(--ac);border-radius:var(--r);padding:12px 14px;margin:12px 0 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;box-shadow:var(--sh)"><div><small style="text-transform:uppercase;font-weight:800;letter-spacing:.6px;font-size:10.5px;color:var(--mut);display:block">Saldo Saat Ini</small><b style="font-size:24px;color:var(--tx);font-variant-numeric:tabular-nums;line-height:1.2">${fmn(bal(id) * s)}</b></div>${can() ? `<button class="pri sm" id=btn-mut-add style="display:inline-flex;align-items:center;gap:6px">${ic('plus')} Catat Transaksi</button>` : ''}</div>
- <div style="max-height:60vh;overflow-y:auto;padding-right:2px">${rs.length ? rs.map(({ x, d, run }) => { const isTf = x.type == 'tf'; let tpLabel = '', tpCls = '', detail = '', dCol = '', sign = ''; if (x.type == 'in') { tpLabel = 'Revenue'; tpCls = 'in'; detail = x.items.map(i => path(i.cat)).join(', '); dCol = 'var(--in)'; sign = '+' } else if (x.type == 'out') { tpLabel = 'Expense'; tpCls = 'out'; detail = x.items.map(i => path(i.cat)).join(', '); dCol = 'var(--out)'; sign = '−' } else { if (d < 0) { tpLabel = 'Transfer Keluar'; tpCls = 'tf-out'; detail = 'Ke ' + path(x.to); dCol = '#e07b39'; sign = '−' } else { tpLabel = 'Transfer Masuk'; tpCls = 'tf-in'; detail = 'Dari ' + path(x.acc); dCol = '#0e9f8e'; sign = '+' } } return `<div class=rw ${can() ? `onclick="ed('${x.id}')"` : ''} style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 8px;border-bottom:1px solid var(--bd);cursor:pointer"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px"><span class="tp ${tpCls}">${tpLabel}</span><b style="font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e(x.note || (isTf ? tpLabel : detail) || '-')}</b></div><small style="display:block;color:var(--mut);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>${fmtDate(x.date)}</b> · ${e(detail)}</small></div><div style="text-align:right;flex:none"><div style="font-size:15px;font-weight:800;color:${dCol};font-variant-numeric:tabular-nums">${sign}${fm(Math.abs(d))}</div><div class=mut-bal-pill title="Saldo setelah transaksi ini"><small>Saldo:</small><b>${fmn(run)}</b></div></div></div>` }).join('') : '<p class=mt>Belum ada mutasi</p>'}</div>`;
-      const cx = activeMutModal.querySelector('#cx'); if (cx) cx.onclick = activeMutModal.close;
-      const bAdd = activeMutModal.querySelector('#btn-mut-add'); if (bAdd) bAdd.onclick = () => txForm({ acc: id, type: a.kind == 'L' ? 'tf' : 'out' })
+    let mutFilter = { period: 'month', from: '', to: '', q: '', type: '', page: 1 };
+
+    function getMutPeriodRange() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = now.getMonth();
+      const startDay = +((typeof pf == 'function' && pf().start) || 1);
+
+      if (mutFilter.period === 'month') {
+        let sY = y, sM = m;
+        if (now.getDate() < startDay) sM--;
+        const a = new Date(sY, sM, startDay);
+        const b = new Date(sY, sM + 1, startDay - 1);
+        return [fd(a), fd(b), 'Bulan Ini (' + fmtDate(fd(a)) + ' - ' + fmtDate(fd(b)) + ')'];
+      }
+      if (mutFilter.period === 'last_month') {
+        let sY = y, sM = m - 1;
+        if (now.getDate() < startDay) sM--;
+        const a = new Date(sY, sM, startDay);
+        const b = new Date(sY, sM + 1, startDay - 1);
+        return [fd(a), fd(b), 'Bulan Lalu (' + fmtDate(fd(a)) + ' - ' + fmtDate(fd(b)) + ')'];
+      }
+      if (mutFilter.period === '30d') {
+        const a = new Date();
+        a.setDate(a.getDate() - 30);
+        const b = new Date();
+        return [fd(a), fd(b), '30 Hari Terakhir'];
+      }
+      if (mutFilter.period === 'year') {
+        return [y + '-01-01', y + '-12-31', 'Tahun ' + y];
+      }
+      if (mutFilter.period === 'custom') {
+        const a = mutFilter.from || today();
+        const b = mutFilter.to || today();
+        return [a, b, fmtDate(a) + ' - ' + fmtDate(b)];
+      }
+      return ['', '', 'Semua Transaksi'];
     }
-    function mut(id) { activeMutId = id; if (!activeMutModal) { activeMutModal = modal(1); const m = activeMutModal, d = m.parentElement, origClose = m.close; m.close = () => { activeMutId = null; activeMutModal = null; origClose() }; d.onclick = ev => { if (ev.target == d && d._s) { activeMutId = null; activeMutModal = null; d.remove() } } } renderMut() }
+
+    function renderMut() {
+      if (!activeMutId || !activeMutModal) return;
+      const id = activeMutId, ids = new Set(desc('acc', id)), a = R.get(id);
+      if (!a) { activeMutModal.close(); return }
+      const s = sg(a.kind);
+      const [pFrom, pTo, pLabel] = getMutPeriodRange();
+      const baseOpen = [...ids].reduce((t, x) => t + (R.get(x).open || 0), 0);
+      const xs = L('tx').filter(x => ids.has(x.acc) || ids.has(x.to)).sort((p, q) => p.date.localeCompare(q.date) || p.ts - q.ts);
+
+      let run = baseOpen;
+      let openBal = baseOpen;
+      const periodItems = [];
+      let totalIn = 0;
+      let totalOut = 0;
+
+      for (const x of xs) {
+        const dRaw = eff(x).filter(([k]) => ids.has(k)).reduce((t, [, v]) => t + v, 0);
+        run += dRaw;
+        const delta = dRaw * s;
+        const curRun = run * s;
+
+        if (pFrom && x.date < pFrom) {
+          openBal = run;
+          continue;
+        }
+        if (pTo && x.date > pTo) {
+          continue;
+        }
+
+        if (delta > 0) totalIn += delta;
+        else if (delta < 0) totalOut += Math.abs(delta);
+
+        periodItems.push({ x, d: delta, run: curRun, date: x.date });
+      }
+
+      const saldoAwal = openBal * s;
+      const saldoAkhir = periodItems.length ? periodItems[periodItems.length - 1].run : saldoAwal;
+      const netChange = totalIn - totalOut;
+
+      let filtered = periodItems.slice().reverse();
+
+      if (mutFilter.type === 'in') {
+        filtered = filtered.filter(item => item.d > 0);
+      } else if (mutFilter.type === 'out') {
+        filtered = filtered.filter(item => item.d < 0);
+      }
+
+      if (mutFilter.q && mutFilter.q.trim()) {
+        const qStr = mutFilter.q.trim().toLowerCase();
+        filtered = filtered.filter(item => {
+          const x = item.x;
+          return (x.note && x.note.toLowerCase().includes(qStr)) ||
+                 (x.desc && x.desc.toLowerCase().includes(qStr)) ||
+                 (x.date && x.date.includes(qStr)) ||
+                 String(Math.abs(item.d)).includes(qStr) ||
+                 (x.items && x.items.some(i => path(i.cat).toLowerCase().includes(qStr))) ||
+                 (x.to && path(x.to).toLowerCase().includes(qStr)) ||
+                 (x.acc && path(x.acc).toLowerCase().includes(qStr));
+        });
+      }
+
+      const pageSize = 30;
+      const pageCount = mutFilter.page || 1;
+      const visibleItems = filtered.slice(0, pageCount * pageSize);
+      const hasMore = filtered.length > visibleItems.length;
+      const remainingCount = filtered.length - visibleItems.length;
+
+      // Group visible items by date
+      const groups = [];
+      let curGroup = null;
+      for (const item of visibleItems) {
+        if (!curGroup || curGroup.date !== item.date) {
+          curGroup = { date: item.date, items: [], dayIn: 0, dayOut: 0 };
+          groups.push(curGroup);
+        }
+        curGroup.items.push(item);
+        if (item.d > 0) curGroup.dayIn += item.d;
+        else curGroup.dayOut += Math.abs(item.d);
+      }
+
+      const kindName = { A: 'Aset', L: 'Liabilitas', Q: 'Ekuitas' }[a.kind] || 'Akun';
+      const kindCls = 'kind-' + a.kind;
+
+      activeMutModal.innerHTML = `
+        <div class="mut-hdr">
+          <div class="mut-title-wrap">
+            <span class="mut-badge-kind ${kindCls}">${kindName}</span>
+            <h3 class="mut-acc-title">${e(path(id))}</h3>
+          </div>
+          <div class="mut-hdr-actions">
+            ${can() ? `<button class="pri sm" id="btn-mut-add" style="display:inline-flex;align-items:center;gap:6px">${ic('plus')} Catat Transaksi</button>` : ''}
+            <button class="ico" id="mut-cx" title="Tutup">${ic('x')}</button>
+          </div>
+        </div>
+
+        <div class="mut-stats-grid">
+          <div class="mut-stat-card mut-stat-main">
+            <div class="mut-stat-lbl">Saldo Saat Ini</div>
+            <div class="mut-stat-val">${fmn(bal(id) * s)}</div>
+            <div class="mut-stat-sub">Real-time per hari ini</div>
+          </div>
+          <div class="mut-stat-card">
+            <div class="mut-stat-lbl">Saldo Awal</div>
+            <div class="mut-stat-val">${fmn(saldoAwal)}</div>
+            <div class="mut-stat-sub">${pFrom ? fmtDate(pFrom) : 'Awal data'}</div>
+          </div>
+          <div class="mut-stat-card">
+            <div class="mut-stat-lbl" style="color:var(--in)">Total Masuk</div>
+            <div class="mut-stat-val" style="color:var(--in)">+${fm(totalIn)}</div>
+            <div class="mut-stat-sub">${periodItems.filter(i => i.d > 0).length} transaksi</div>
+          </div>
+          <div class="mut-stat-card">
+            <div class="mut-stat-lbl" style="color:var(--out)">Total Keluar</div>
+            <div class="mut-stat-val" style="color:var(--out)">-${fm(totalOut)}</div>
+            <div class="mut-stat-sub">${periodItems.filter(i => i.d < 0).length} transaksi</div>
+          </div>
+          <div class="mut-stat-card">
+            <div class="mut-stat-lbl">Saldo Akhir</div>
+            <div class="mut-stat-val">${fmn(saldoAkhir)}</div>
+            <div class="mut-stat-sub">Selisih: <b style="color:${netChange >= 0 ? 'var(--in)' : 'var(--out)'}">${netChange >= 0 ? '+' : ''}${fm(netChange)}</b></div>
+          </div>
+        </div>
+
+        <div class="mut-ctrls">
+          <div class="mut-pills-row">
+            ${[
+              ['month', 'Bulan Ini'],
+              ['last_month', 'Bulan Lalu'],
+              ['30d', '30 Hari'],
+              ['year', 'Tahun Ini'],
+              ['all', 'Semua'],
+              ['custom', 'Pilih Tanggal 📅']
+            ].map(([pk, pl]) => `<button type="button" class="mut-pill ${mutFilter.period === pk ? 'on' : ''}" data-p="${pk}">${pl}</button>`).join('')}
+          </div>
+          ${mutFilter.period === 'custom' ? `
+          <div class="mut-custom-date-row">
+            <label>Dari: <input type="date" id="mut-d-from" value="${mutFilter.from || (pFrom || today())}"></label>
+            <label>Sampai: <input type="date" id="mut-d-to" value="${mutFilter.to || (pTo || today())}"></label>
+            <button class="pri sm" id="btn-mut-apply-date">Terapkan</button>
+          </div>` : ''}
+          <div class="mut-filter-row">
+            <div class="mut-search-wrap">
+              <span class="mut-search-ico">${ic('search')}</span>
+              <input type="text" id="mut-search" placeholder="Cari catatan, kategori, keterangan, jumlah..." value="${e(mutFilter.q)}" autocomplete="off">
+              ${mutFilter.q ? `<button type="button" class="ico sm" id="mut-clear-q">${ic('x')}</button>` : ''}
+            </div>
+            <div class="mut-type-tabs">
+              <button class="mut-type-btn ${!mutFilter.type ? 'on' : ''}" data-t="">Semua (${filtered.length})</button>
+              <button class="mut-type-btn ${mutFilter.type === 'in' ? 'on' : ''}" data-t="in" style="color:var(--in)">Masuk</button>
+              <button class="mut-type-btn ${mutFilter.type === 'out' ? 'on' : ''}" data-t="out" style="color:var(--out)">Keluar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mut-list-wrap">
+          ${groups.length ? groups.map(g => {
+            const dt = new Date(g.date + 'T00:00');
+            const dayNum = String(dt.getDate()).padStart(2, '0');
+            const dayName = DW[dt.getDay()] || '';
+            const myStr = (MN[dt.getMonth()] || '') + ' ' + dt.getFullYear();
+
+            return `
+              <div class="mut-date-group">
+                <div class="mut-date-header">
+                  <div class="mut-date-badge">
+                    <span class="mut-date-day">${dayNum}</span>
+                    <div class="mut-date-meta">
+                      <b class="mut-date-dayname">${dayName}</b>
+                      <small class="mut-date-my">${myStr}</small>
+                    </div>
+                  </div>
+                  <div class="mut-date-totals">
+                    ${g.dayIn ? `<span class="mut-day-in">+${fm(g.dayIn)}</span>` : ''}
+                    ${g.dayOut ? `<span class="mut-day-out">-${fm(g.dayOut)}</span>` : ''}
+                  </div>
+                </div>
+                <div>
+                  ${g.items.map(({ x, d, run }) => {
+                    const isTf = x.type === 'tf';
+                    let tpLabel = '', tpCls = '', detail = '', dCol = 'var(--out)', sign = '-';
+                    let tpIcon = ic('up');
+
+                    if (x.type === 'in') {
+                      tpLabel = 'Revenue';
+                      tpCls = 'in';
+                      detail = (x.items || []).map(i => path(i.cat)).filter(Boolean).join(', ');
+                      dCol = 'var(--in)';
+                      sign = '+';
+                      tpIcon = `<svg class=ic viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=2.5 stroke-linecap=round stroke-linejoin=round><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>`;
+                    } else if (x.type === 'out') {
+                      tpLabel = 'Expense';
+                      tpCls = 'out';
+                      detail = (x.items || []).map(i => path(i.cat)).filter(Boolean).join(', ');
+                      dCol = 'var(--out)';
+                      sign = '-';
+                      tpIcon = `<svg class=ic viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=2.5 stroke-linecap=round stroke-linejoin=round><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>`;
+                    } else {
+                      if (d < 0) {
+                        tpLabel = 'Transfer Keluar';
+                        tpCls = 'tf-out';
+                        detail = 'Ke ' + path(x.to);
+                        dCol = '#e07b39';
+                        sign = '-';
+                        tpIcon = `<svg class=ic viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=2.5 stroke-linecap=round stroke-linejoin=round><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
+                      } else {
+                        tpLabel = 'Transfer Masuk';
+                        tpCls = 'tf-in';
+                        detail = 'Dari ' + path(x.acc);
+                        dCol = '#0e9f8e';
+                        sign = '+';
+                        tpIcon = `<svg class=ic viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=2.5 stroke-linecap=round stroke-linejoin=round><path d="M19 12H5M12 19l-7-7 7-7"/></svg>`;
+                      }
+                    }
+
+                    const noteText = x.note || (isTf ? tpLabel : detail) || '-';
+                    const tagsHtml = (x.items || []).concat(x.feeItems || []).flatMap(i => i.tags || []).filter(lv).map(tgChip).join('');
+
+                    return `
+                      <div class="mut-row ${tpCls}" ${can() ? `onclick="ed('${x.id}')"` : ''} title="${can() ? 'Klik untuk melihat / mengedit transaksi' : ''}">
+                        <div class="mut-type-icon ${tpCls}">
+                          ${tpIcon}
+                        </div>
+                        <div class="mut-row-main">
+                          <div class="mut-row-top">
+                            <span class="mut-tp-tag ${tpCls}">${tpLabel}</span>
+                            <b class="mut-row-note">${e(noteText)}</b>
+                          </div>
+                          <div class="mut-row-sub">
+                            ${detail ? `<span class="mut-detail">${e(detail)}</span>` : ''}
+                            ${tagsHtml}
+                            ${x.desc ? `<span class="mut-desc">${e(x.desc)}</span>` : ''}
+                            ${x.fee ? `<span class="mut-fee-badge">adm ${fm(x.fee)}</span>` : ''}
+                          </div>
+                        </div>
+                        <div class="mut-row-right">
+                          <div class="mut-row-amt" style="color:${dCol}">${sign}${fm(Math.abs(d))}</div>
+                          <div class="mut-bal-pill" title="Saldo setelah mutasi ini"><small>Saldo</small><b>${fmn(run)}</b></div>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            `;
+          }).join('') : `
+            <div class="mut-empty-state">
+              <div style="font-size:36px;margin-bottom:8px">📜</div>
+              <h4 style="margin:0 0 6px">Tidak ada mutasi</h4>
+              <p class="mut" style="margin:0 0 12px;font-size:13px">Tidak ada transaksi pada periode <b>${e(pLabel)}</b>${mutFilter.q ? ' yang cocok dengan pencarian' : ''}.</p>
+              ${can() ? `<button class="pri sm" id="btn-mut-empty-add" style="display:inline-flex;align-items:center;gap:6px">${ic('plus')} Catat Transaksi Baru</button>` : ''}
+            </div>
+          `}
+          ${hasMore ? `
+            <div style="text-align:center;padding:10px 0 16px">
+              <button class="mut-load-more" id="btn-mut-more">Tampilkan 30 Mutasi Berikutnya (${remainingCount} tersisa)</button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+
+      // Event bindings
+      const cx = activeMutModal.querySelector('#mut-cx');
+      if (cx) cx.onclick = activeMutModal.close;
+
+      const bAdd = activeMutModal.querySelector('#btn-mut-add');
+      if (bAdd) bAdd.onclick = () => txForm({ acc: id, type: a.kind == 'L' ? 'tf' : 'out' });
+
+      const bEmptyAdd = activeMutModal.querySelector('#btn-mut-empty-add');
+      if (bEmptyAdd) bEmptyAdd.onclick = () => txForm({ acc: id, type: a.kind == 'L' ? 'tf' : 'out' });
+
+      activeMutModal.querySelectorAll('.mut-pill').forEach(btn => {
+        btn.onclick = () => {
+          mutFilter.period = btn.dataset.p;
+          mutFilter.page = 1;
+          renderMut();
+        };
+      });
+
+      const applyDateBtn = activeMutModal.querySelector('#btn-mut-apply-date');
+      if (applyDateBtn) {
+        applyDateBtn.onclick = () => {
+          const dFrom = activeMutModal.querySelector('#mut-d-from');
+          const dTo = activeMutModal.querySelector('#mut-d-to');
+          if (dFrom && dTo) {
+            mutFilter.from = dFrom.value;
+            mutFilter.to = dTo.value;
+            mutFilter.page = 1;
+            renderMut();
+          }
+        };
+      }
+
+      const sInp = activeMutModal.querySelector('#mut-search');
+      if (sInp) {
+        sInp.oninput = () => {
+          mutFilter.q = sInp.value;
+          mutFilter.page = 1;
+          renderMut();
+          const freshInp = activeMutModal.querySelector('#mut-search');
+          if (freshInp) {
+            freshInp.focus();
+            freshInp.setSelectionRange(freshInp.value.length, freshInp.value.length);
+          }
+        };
+      }
+
+      const clearQ = activeMutModal.querySelector('#mut-clear-q');
+      if (clearQ) {
+        clearQ.onclick = () => {
+          mutFilter.q = '';
+          mutFilter.page = 1;
+          renderMut();
+        };
+      }
+
+      activeMutModal.querySelectorAll('.mut-type-btn').forEach(btn => {
+        btn.onclick = () => {
+          mutFilter.type = btn.dataset.t;
+          mutFilter.page = 1;
+          renderMut();
+        };
+      });
+
+      const bMore = activeMutModal.querySelector('#btn-mut-more');
+      if (bMore) {
+        bMore.onclick = () => {
+          mutFilter.page++;
+          renderMut();
+        };
+      }
+    }
+
+    function mut(id) {
+      if (activeMutId !== id) {
+        mutFilter = { period: 'month', from: '', to: '', q: '', type: '', page: 1 };
+      }
+      activeMutId = id;
+      if (!activeMutModal) {
+        activeMutModal = modal(1);
+        const m = activeMutModal, d = m.parentElement, origClose = m.close;
+        m.close = () => {
+          activeMutId = null;
+          activeMutModal = null;
+          origClose();
+        };
+        d.onclick = ev => {
+          if (ev.target == d && d._s) {
+            activeMutId = null;
+            activeMutModal = null;
+            d.remove();
+          }
+        };
+      }
+      renderMut();
+    }
     // ---------- Pengaturan ----------
     const sp = async (k, v) => { await save({ ...(R.get('pref') || { id: 'pref', t: 'pref' }), [k]: v }); toast('Tersimpan') }, opt = (l, s) => l.map(([v, n]) => `<option value="${v}" ${v == s ? 'selected' : ''}>${n}</option>`).join(''), rol = s => opt(['admin', 'editor', 'viewer'].map(r => [r, r]), s);
     const sb = (id, v) => save({ ...R.get(id), amt: pn(v) });
@@ -2773,6 +3686,7 @@ ${dbs.length < 2 && !invs.length ? '<p class=mt>Ingin bergabung ke database kelu
  ${sr('Format angka', 'Contoh: ' + fm(1234567), `<select onchange="sp('fmt',this.value)" ${dis}>${opt([['id', '1.234,56 (Indonesia)'], ['en', '1,234.56 (Inggris)']], p.fmt)}</select>`)}
  ${sr('Status online', FB.databaseURL ? 'Tampilkan ke anggota lain bahwa saya sedang online (tidak memakai kuota Firestore)' : 'Belum aktif: perlu Realtime Database gratis (lihat petunjuk)', `<label style="display:flex;gap:8px;align-items:center;margin:0;color:var(--tx)"><input type=checkbox style="width:auto" ${presOn() ? 'checked' : ''} onchange="setPres(this.checked)"> Tampilkan</label>`)}
  ${sr('Desimal', '', `<select onchange="sp('dec',+this.value)" ${dis}>${opt([[0, 'Tanpa desimal'], [2, '2 desimal']], p.dec)}</select>`)}
+ ${!stand() ? sr('Pasang aplikasi (PWA)', 'Install di ponsel agar cepat dibuka & bisa offline', `<button class="pri sm" onclick="pwaInstallPrompt()">Pasang sekarang</button>`) : sr('Status aplikasi', 'Aplikasi telah terpasang di perangkat ini', `<span style="color:var(--in);font-weight:700">✓ Terpasang (PWA)</span>`)}
  ${sr('Mulai periode bulanan', 'Tanggal 25 = periode 25 bulan ini s.d. 24 bulan depan', `<select onchange="sp('start',+this.value)" ${dis}>${opt(Array.from({ length: 28 }, (_, i) => [i + 1, i ? 'Tanggal ' + (i + 1) : 'Tanggal 1 (kalender)']), p.start)}</select>`)}</section>
  <section class=cd><h3>Tema tampilan</h3><p class=mut style="margin:0 0 8px">Tersimpan di akun Anda sendiri, tidak mengikuti database.</p><div class=themes>${[[1, 'Buku catatan'], [2, 'Pastel'], [3, 'Profesional']].map(([k, l]) => `<button class="th th${k} ${userTheme() == k ? 'on' : ''}" onclick="setTheme(${k})"><i></i><span>${l}</span></button>`).join('')}</div></section>`;
       else if (sets == 'acc' || sets == 'cat') {
@@ -3094,7 +4008,7 @@ ${dbs.length < 2 && !invs.length ? '<p class=mt>Ingin bergabung ke database kelu
     const go = k => { rtAt(k); if (k == 'bel') pullBel(); view = k; render(); scrollTo(0, 0) };
     function shell() {
       if (!navs().some(n => n[0] == view)) view = 'home'; const ti = navs().find(n => n[0] == view)[1], nm = e(pf().name || famName);
-      return `<div class=shell><aside class=sb><div class=brand>${LOGO}<span>Keuangan<br>Keluarga</span></div><nav>${navs().map(([k, l, i, sh]) => `<button class="${view == k ? 'on' : ''}" onclick="go('${k}')">${ic(i)}<span class=lf>${l}</span><span class=ls>${sh || l}</span></button>`).join('')}</nav><div class=sbf><div class=dbn>${nm}<small>${role}</small></div>${can() ? `<a href="${BELANJA_URL}">${ic('cart')} BelanjaApp</a>` : ''}<button onclick="toPick()">${ic('swap')} Ganti database</button><button onclick="au.signOut()">${ic('out')} Keluar</button></div></aside>
+      return `<div class=shell><aside class=sb><div class=brand>${LOGO}<span>Keuangan<br>Keluarga</span></div><nav>${navs().map(([k, l, i, sh]) => `<button class="${view == k ? 'on' : ''}" onclick="go('${k}')">${ic(i)}<span class=lf>${l}</span><span class=ls>${sh || l}</span></button>`).join('')}</nav><div class=sbf><div class=dbn>${nm}<small>${role}</small></div>${can() ? `<a href="${BELANJA_URL}">${ic('cart')} BelanjaApp</a>` : ''}${!stand() ? `<button onclick="pwaInstallPrompt()" style="color:var(--in);font-weight:600">${ic('plus')} Pasang Aplikasi</button>` : ''}<button onclick="toPick()">${ic('swap')} Ganti database</button><button onclick="au.signOut()">${ic('out')} Keluar</button></div></aside>
  <div class=mn><header class=tb><div><h1>${ti}</h1><small>${nm}</small></div><span id=presw>${presH()}</span><span><button id=sy onclick="syncNow()"></button><button class="ico mob" title="Ganti database" onclick="toPick()">${ic('swap')}</button></span></header>${qOff() ? `<div class=ex style="margin:8px 20px">⛔ Kuota harian Firestore habis. Data aman di perangkat dan terkirim otomatis setelah kuota diperbarui (sekitar ${new Date(QX()).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}).</div>` : ''}${SCH && SCH < 2 ? '<div class=ex style="margin:8px 20px">Database sedang ditingkatkan ke format hemat kuota. Admin perlu membuka aplikasi versi terbaru dulu; data Anda aman dan tetap bisa dilihat.</div>' : ''}<main>${{ home: vHome, list: vList, bs: vBS, bg: vBud, bel: vBel, set: vSet }[view]()}</main></div>${can() && view != 'bg' ? `<button class=fab title="Catat transaksi" onclick="txForm()">${ic('plus')}</button>` : ''}</div>`
     }
     function render(soft) {
@@ -3104,13 +4018,74 @@ ${dbs.length < 2 && !invs.length ? '<p class=mt>Ingin bergabung ke database kelu
       if (scr == 'app') { setSt(); if (view == 'list') { fbar(); fl() } if (view == 'set') { sets == 'usr' && loadUsr(); sets == 'db' && role == 'super' && loadSup() } } scrollTo(0, y)
     }
     // ---------- Install & start ----------
-    let dip; const stand = () => matchMedia('(display-mode:standalone)').matches || navigator.standalone;
-    function showInst(ios) {
-      if (stand() || +localStorage.instNo > Date.now() || $('.inst')) return; const d = document.createElement('div'); d.className = 'inst'; d.innerHTML = `<img src="icon-192.png" alt=""><span class=g1>${ios ? 'Pasang di iPhone: ketuk <b>Bagikan</b> lalu <b>Tambah ke Layar Utama</b>.' : '<b>Pasang aplikasi</b> agar cepat dibuka & bisa offline.'}</span>${ios ? '' : '<button class=pri id=ib>Pasang</button>'}<button class=ico id=ix title="Nanti">${ic('x')}</button>`; document.body.append(d);
-      d.querySelector('#ix').onclick = () => { localStorage.instNo = Date.now() + 14 * 864e5; d.remove() }; const b = d.querySelector('#ib'); if (b) b.onclick = async () => { d.remove(); dip.prompt(); await dip.userChoice; dip = null }
+    const stand = () => matchMedia('(display-mode:standalone)').matches || navigator.standalone;
+    function pwaGuideModal() {
+      const isIos = /iphone|ipad/i.test(navigator.userAgent);
+      const Mo = modal();
+      Mo.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h3 style="margin:0;display:flex;align-items:center;gap:8px">${LOGO} Cara Pasang Aplikasi</h3>
+        <button class=ico id=pm-cx title="Tutup">${ic('x')}</button>
+      </div>
+      <p class=mut style="font-size:13.5px;margin:0 0 14px">Pasang Keuangan Keluarga sebagai aplikasi (PWA) agar dapat dibuka cepat langsung dari layar utama ponsel, bekerja saat offline, dan lebih hemat kuota.</p>
+      ${isIos ? `
+      <div style="background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:12px;line-height:1.6">
+        <b style="color:var(--ac);display:block;margin-bottom:8px;font-size:14.5px">📱 Untuk Pengguna iPhone / iPad (Safari):</b>
+        <ol style="margin:0;padding-left:20px;font-size:13.5px">
+          <li>Buka situs ini di browser <b>Safari</b>.</li>
+          <li>Ketuk tombol <b>Bagikan (Share)</b> <svg class=ic viewBox="0 0 24 24" style="width:17px;height:17px;vertical-align:-3px" fill=none stroke=currentColor stroke-width=2><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg> di bilah bawah Safari.</li>
+          <li>Gulir ke bawah dan pilih menu <b>"Tambah ke Layar Utama" (Add to Home Screen)</b>.</li>
+          <li>Ketuk <b>Tambah</b> di pojok kanan atas. Ikon aplikasi akan langsung muncul di beranda!</li>
+        </ol>
+      </div>` : `
+      <div style="background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:12px;line-height:1.6">
+        <b style="color:var(--ac);display:block;margin-bottom:8px;font-size:14.5px">📱 Untuk Pengguna Android (Chrome / Samsung / Xiaomi / dll):</b>
+        <ol style="margin:0;padding-left:20px;font-size:13.5px">
+          <li>Pastikan membuka di browser <b>Google Chrome</b> atau <b>Samsung Internet</b>.</li>
+          <li>Ketuk menu titik tiga <b>(⋮)</b> di pojok kanan atas browser.</li>
+          <li>Pilih menu <b>"Instal aplikasi"</b> atau <b>"Tambahkan ke Layar Utama"</b> (Add to Home screen).</li>
+          <li>Konfirmasi dengan menekan <b>Instal</b>. Aplikasi akan terpasang di ponsel Anda!</li>
+        </ol>
+      </div>`}
+      <div class=row style="margin-top:14px"><button class="pri" id=pm-ok style="width:100%">Mengerti</button></div>`;
+      Mo.querySelector('#pm-cx').onclick = Mo.close;
+      Mo.querySelector('#pm-ok').onclick = Mo.close;
     }
-    addEventListener('beforeinstallprompt', ev => { ev.preventDefault(); dip = ev; setTimeout(() => showInst(0), 8000) });
-    if (/iphone|ipad/i.test(navigator.userAgent) && !stand()) setTimeout(() => showInst(1), 10000);
+
+    async function pwaInstallPrompt() {
+      if (stand()) return toast('Aplikasi sudah terpasang di perangkat Anda');
+      const promptEvent = window.deferredPrompt;
+      if (promptEvent) {
+        try {
+          promptEvent.prompt();
+          const choice = await promptEvent.userChoice;
+          if (choice && choice.outcome === 'accepted') {
+            window.deferredPrompt = null;
+            toast('Aplikasi sedang dipasang...');
+          }
+        } catch (e) {
+          pwaGuideModal();
+        }
+      } else {
+        pwaGuideModal();
+      }
+    }
+
+    function showInst(ios) {
+      if (stand() || +localStorage.instNo > Date.now() || $('.inst')) return;
+      const d = document.createElement('div');
+      d.className = 'inst';
+      d.innerHTML = `<img src="icon-192.png" alt=""><span class=g1>${ios ? 'Pasang di iPhone: ketuk <b>Bagikan</b> lalu <b>Tambah ke Layar Utama</b>.' : '<b>Pasang aplikasi</b> agar cepat dibuka & bisa offline.'}</span><button class=pri id=ib>Pasang</button><button class=ico id=ix title="Nanti">${ic('x')}</button>`;
+      document.body.append(d);
+      d.querySelector('#ix').onclick = () => { localStorage.instNo = Date.now() + 2 * 864e5; d.remove() };
+      const b = d.querySelector('#ib');
+      if (b) b.onclick = () => { d.remove(); pwaInstallPrompt() };
+    }
+    window.addEventListener('beforeinstallprompt', ev => {
+      ev.preventDefault();
+      window.deferredPrompt = ev;
+      setTimeout(() => showInst(0), 4000);
+    });
+    if (/iphone|ipad/i.test(navigator.userAgent) && !stand()) setTimeout(() => showInst(1), 6000);
     let pendR = 0; document.addEventListener('visibilitychange', () => { if (!fid) return; if (document.hidden) { clearTimeout(qT); sync() } else if (smode() != 'manual' && Date.now() - lastPull > 120000) { pullAll(); if (Date.now() - lastFam > 6e5) famCheck(fid) } }); addEventListener('focusout', () => { if (pendR) { pendR = 0; setTimeout(() => render(), 80) } });
     addEventListener('online', () => { sync(); pullAll(); setSt() }); addEventListener('offline', setSt); setInterval(() => { if (smode() != 'manual') sync() }, 60000);
     if ('serviceWorker' in navigator) { const had = !!navigator.serviceWorker.controller; navigator.serviceWorker.register('sw.js'); navigator.serviceWorker.addEventListener('controllerchange', () => { if (had && !window.__rl) { window.__rl = 1; location.reload() } }) }
